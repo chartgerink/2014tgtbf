@@ -10,69 +10,27 @@ setwd(mypath)
 mypath <- "D:/Chris/Dropbox/CJM/Masterproject/"
 setwd(mypath)
 
+# Load custom functions
+source("Analyzing//0. Functions/FisherExTest.R")
+source("Analyzing//0. Functions/TerminalDigits.R")
+
+
 ###############
 # Pilot Study #
 ###############
 ## Importing and preparing datafile
-copilot <- read.table("Analyzing//1. Pilot study/copilot.txt")
+copilot <- read.table("Analyzing//1. Pilot study/copilot.txt",stringsAsFactors=F)
 # Removing out of bounds p-values
 selNA <- copilot$p_value_computed>=1
 sum(selNA[!is.na(selNA)])
 copilot$p_value_computed[selNA] <- NA
 # Replace all comma's with decimal points and make the variable numeric.
 copilot$test_statistic_value <- suppressWarnings(as.numeric(sub(",",".",copilot$test_statistic_value)))
+copilot$df1 <- suppressWarnings(as.numeric(sub(",",".",copilot$df1)))
+copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
 
 ## Computing fisher test statistics (inexact)
-# Create placeholder objects
-uniqID <- unique(copilot$pap_id)
-selP <- NULL
-ratioSig <- NULL
-ratioNSig <- NULL
-fishTest <- NULL
-fishTestCompl <- NULL
-pfishTest <- NULL
-pfishTestCompl <- NULL
-meanP <- NULL
-selPtrunc <- NULL
-meanPtrunc <- NULL
-# Calculate all Fisher values and p-values
-# Both normal and complement
-for(i in 1:length(uniqID)){
-  selP[[i]] <- na.omit(copilot$p_value_reported[uniqID[i]==copilot$ideed])
-  selPtrunc[[i]] <- selP[[i]][selP[[i]]>.05] 
-  ratioSig[i] <- sum(selP[[i]]<=.05)/length(selP[[i]])
-  ratioNSig[i] <- 1-ratioSig[i]
-  selPStar <- (selP[[i]][selP[[i]]>.05]-.05)/.95
-  selPStarCompl <- 1-selPStar
-  fishTest[i] <- -sum(log(selPStar))
-  fishTestCompl[i] <- -sum(log(selPStarCompl))
-  pfishTest[i] <- pgamma(fishTest[i], shape=length(selP))
-  pfishTestCompl[i] <- pgamma(fishTestCompl[i], shape=length(selP[[i]]))
-  meanP[i] <- mean(selP[[i]])
-  meanPtrunc[i] <- mean(selPtrunc[[i]])
-}
-
-
-Test <- NULL
-TestCompl <- NULL
-kPaper <- NULL
-pTest <- NULL
-pTestCompl <- NULL
-indTest <- NULL
-indTestCompl <- NULL
-for(i in 1:length(uniqID)){
-  if(length(selPtrunc[[i]])==0){Test[i] <- NA
-                                TestCompl[i] <- NA
-                                kPaper[i] <- NA} else{
-  Test[i] <- sum(-log((selPtrunc[[i]]-.05)/.95))
-  indTest[[i]] <- -log((selPtrunc[[i]]-.05)/.95)
-  TestCompl[i] <- sum(-log(1-((selPtrunc[[i]]-.05)/.95)))
-  indTestCompl[[i]] <- -log(1-((selPtrunc[[i]]-.05)/.95))
-  kPaper[i] <- length(selPtrunc[[i]])}
-  pTest[i] <- pgamma(Test[i], shape=kPaper[i])
-  pTestCompl[i] <- pgamma(TestCompl[i], shape=kPaper[i])
-  # Kan allebei hoog zijn
-}
+ResPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
 
 ## Computing effect sizes for all 
 # M,SD of number of non-significant p-values per study
@@ -86,12 +44,6 @@ sum(pfishTestCompl<=.05); length(pfishTestCompl)
 mean(na.omit(ratioSig))
 # Mean proportion of nonsignificant values
 mean(na.omit(ratioNSig))
-
-# EPV
-# Number with mean P-value >.5 
-sum(na.omit(meanP>.5))
-# Range of MPV > .5
-summary(meanP[meanP>.5])
 
 ###########
 # Figures #
