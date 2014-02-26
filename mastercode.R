@@ -1,25 +1,20 @@
-# Masterfile source code
-# Last updated: january 2014
 # Contributor(s): Chris H.J. Hartgerink
 
 # Change the object mypath to where you cloned the repository
 # Home Computer
-mypath <- "C:/Users/Chris/Dropbox/CJM/Masterproject/"
+mypath <- "C:/Users/Chris/Dropbox/CJM/Masterproject/Analyzing/"
 setwd(mypath)
-# Work computer
-mypath <- "D:/Chris/Dropbox/CJM/Masterproject/"
-setwd(mypath)
-
 # Load custom functions
-source("Analyzing//0. Functions/FisherExTest.R")
-source("Analyzing//0. Functions/TerminalDigits.R")
+source("a.Functions/FisherExTest.R")
+source("a.Functions/TerminalDigits.R")
+source("a.Functions/ESComp.R")
 
 
 ###############
 # Pilot Study #
 ###############
 ## Importing and preparing datafile
-copilot <- read.table("Analyzing//1. Pilot study/copilot.txt",stringsAsFactors=F)
+copilot <- read.table("1.Pilot study/copilot.txt",stringsAsFactors=F)
 # Removing out of bounds p-values
 selNA <- copilot$p_value_computed>=1
 sum(selNA[!is.na(selNA)])
@@ -30,27 +25,24 @@ copilot$df1 <- suppressWarnings(as.numeric(sub(",",".",copilot$df1)))
 copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
 
 ## Computing fisher test statistics (inexact)
-ResPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
+resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
 
-## Computing effect sizes for all 
-# M,SD of number of non-significant p-values per study
-round(mean(unlist(lapply(selPtrunc,length))),2)
-round(sd(unlist(lapply(selPtrunc,length))),2)
-# Fisher test *
-sum(pfishTest<=.05); length(pfishTest)
-# Fisher test -*
-sum(pfishTestCompl<=.05); length(pfishTestCompl)
-# Mean proportion of significant values
-mean(na.omit(ratioSig))
-# Mean proportion of nonsignificant values
-mean(na.omit(ratioNSig))
+## Computing unadjusted and adjusted effect sizes
+copilot <- cbind(copilot, ESComp(copilot))
+
+# Descriptive statistics
+# Non-significant results
+# Percent
+mean(resPilot$PercentNonSig)
+hist(resPilot$PercentNonSig,breaks=20)
+
 
 ###########
 # Figures #
 ###########
 # Figure 1
 # Conceptual plot of p-distributions
-png(file = "Writing/fig1.png", width=821, height=501)
+png(file = "b.Figures/fig1.png", width=821, height=501)
 curve(exp(-x+.5), from=1, to=.05, add=F, xlim=c(1,.05), ylim=c(0,2.5)
       , xlab="P-value", ylab="Density")
 curve(exp(-1.5*x+.75), from=1, to=.05, add=T)
