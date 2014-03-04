@@ -6,7 +6,7 @@ mypath <- "C:/Users/Chris/Dropbox/CJM/Masterproject/Analyzing/"
 setwd(mypath)
 # Load custom functions
 source("a.Functions/FisherExTest.R")
-source("a.Functions/TerminalDigits.R")
+# source("a.Functions/TerminalDigits.R")
 source("a.Functions/ESComp.R")
 
 
@@ -32,22 +32,52 @@ resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
 mean(resPilot$PercentNonSig)
 hist(resPilot$PercentNonSig,breaks=20, main="Percentages of non-significant results", xlab="Percentage")
 # Number of statistics reported
+# Overall
 mean(resPilot$CountNSig+resPilot$CountSig)
 sd(resPilot$CountNSig+resPilot$CountSig)
-
+# Significant
+mean(resPilot$CountSig)
+sd(resPilot$CountSig)
+# Non-significant
 mean(resPilot$CountNSig)
 sd(resPilot$CountNSig)
 
-mean(resPilot$CountSig)
-sd(resPilot$CountSig)
-
 # Results
-fishTestSign <- round(na.omit(cbind(resPilot$Fish[resPilot$PFish<.1], resPilot$PFish[resPilot$PFish<.1])),3)
+signSel <- resPilot$PFish < .1
+signNSel <- resPilot$PFishCompl < .1
+copilot$N <- nCalc(copilot)
+fishTestSign <- round(na.omit(cbind(resPilot$Fish[signSel],
+                                    resPilot$PFish[signSel])),3)
+fishTestComplSign <- round(na.omit(cbind(resPilot$FishCompl[signNSel],
+                                         resPilot$PFishCompl[signNSel])),3)
 # Number of signif results
 dim(fishTestSign)[1]
-fishTestComplSign <- round(na.omit(cbind(resPilot$FishCompl[resPilot$PFishCompl<.1], resPilot$PFishCompl[resPilot$PFishCompl<.1])),3)
 # Number of signif results complement
 dim(fishTestComplSign)[1]
+
+# Computing mean of the mean sample size
+meanNSig <- NULL
+for(i in 1:length(signSel)){
+  if(is.na(signSel[i])){
+    meanNSig[i] <- NA
+  } else if(signSel[i]==TRUE){
+    meanNSig[i] <- mean(copilot$N[copilot$pap_id==i], na.rm=T)
+  } else {
+    meanNSig[i] <- NA  
+  }
+}
+meanNComplSig <- NULL
+for(i in 1:length(signNSel)){
+  if(is.na(signNSel[i])){
+    meanNComplSig[i] <- NA
+  } else if(signNSel[i]==TRUE){
+    meanNComplSig[i] <- mean(copilot$N[copilot$pap_id==i], na.rm=T)
+  } else {
+    meanNComplSig[i] <- NA  
+  }
+}
+mean(meanNSig, na.rm=T)
+mean(meanNComplSig, na.rm=T)
 
 
 # Running meta-analysis on unadjusted effect sizes
@@ -69,10 +99,7 @@ sVar <- sVar[!sVar<0]
 # Random effects MA
 # Note: this takes a long time to run (under DerSimonian-Laird approx. 5-6minutes, REML takes >1h).
 # That is why I comment this out.
-# x1 <- proc.time()[1]
-# modelPilot <- rma(yi=rES, vi=sVar, method="DL", digits=10)
-# x2 <- proc.time()[1]
-# x2-x1
+modelPilot <- rma(yi=rES, vi=sVar, method="DL", digits=10)
 # Transforming back MA results
 estPilot <- z2r(modelPilot$b[1])
 sePilot <- z2r(modelPilot$se)
