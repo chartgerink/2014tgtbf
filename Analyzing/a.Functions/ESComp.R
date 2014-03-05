@@ -11,7 +11,7 @@ ESComp <- function(# Function to compute effect sizes for a \code{statcheck} obj
      (x$test_statistic_value*(x$df1 / x$df2)) / (((x$test_statistic_value*x$df1) / x$df2) + 1),
      ifelse(
        x$test_statistic=="r",
-       x$test_statistic_value[x$test_statistic=="r"]^2,
+       x$test_statistic_value^2,
                        #                        ifelse(
                        #                          x$test_statistic=="Chi2",
                        #                          sqrt(x$test_statistic_value[x$test_statistic=="Chi2"]/(x$df1[x$test_statistic=="Chi2"]+1)),
@@ -27,7 +27,7 @@ adjESComp <- ifelse(x$test_statistic=="t",
     (x$test_statistic_value * (x$df1 / x$df2) - (x$df1 / x$df2)) / (((x$test_statistic_value*x$df1) / x$df2) + 1),
     ifelse(
       x$test_statistic=="r",
-                          x$test_statistic_value[x$test_statistic=="r"]^2,# Need to refine for adjusted effect size
+                          x$test_statistic_value^2-((1-x$test_statistic_value^2)/x$df1),
                           #                        ifelse(
                           #                          x$test_statistic=="Chi2",
                           #                          sqrt(x$test_statistic_value[x$test_statistic=="Chi2"]/(x$df1[x$test_statistic=="Chi2"]+1)),
@@ -70,7 +70,7 @@ nCalc <- function(# Compute sample sizes based on dfs.
      x$df2-(x$df1+1),
      ifelse(
        x$test_statistic=="r",
-       x$df+1,
+       x$df+2,
                        #                        ifelse(
                        #                          x$test_statistic=="Chi2",
                        #                          sqrt(x$test_statistic_value[x$test_statistic=="Chi2"]/(x$df1[x$test_statistic=="Chi2"]+1)),

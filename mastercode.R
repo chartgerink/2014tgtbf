@@ -79,35 +79,8 @@ for(i in 1:length(signNSel)){
 mean(meanNSig, na.rm=T)
 mean(meanNComplSig, na.rm=T)
 
-
-# Running meta-analysis on unadjusted effect sizes
-if(!require(metafor)){install.packages('metafor')}
 # Computing unadjusted and adjusted effect sizes
 copilot <- cbind(copilot, ESComp(copilot))
-# Converting effect sizes into r
-rSqES <- sqrt(copilot$esComp)
-# Fisher's r to Z transformation for M-A
-rES <- r2z(rSqES)
-# Calculating sampling variance
-sVar <- sVarComp(copilot)
-# Selecting out the negative sampling variances
-# Caused by either very small samples or by df1 > df2 in F tests
-# See next line of commented out code for the cases that have this
-# (na.omit(copilot[((sVar)<0),3:5]))
-rES <- rES[!(sVar<0)]
-sVar <- sVar[!sVar<0]
-# Random effects MA
-# Note: this takes a long time to run (under DerSimonian-Laird approx. 5-6minutes, REML takes >1h).
-# That is why I comment this out.
-modelPilot <- rma(yi=rES, vi=sVar, method="DL", digits=10)
-# Transforming back MA results
-estPilot <- z2r(modelPilot$b[1])
-sePilot <- z2r(modelPilot$se)
-ciLowPilot <- z2r(modelPilot$ci.lb)
-ciHighPilot <- z2r(modelPilot$ci.ub)
-tau2Pilot <- z2r(modelPilot$tau2)
-resModelPilot <- round(cbind(estPilot, sePilot, ciLowPilot, ciHighPilot, tau2Pilot),3)
-
 
 
 ###########
