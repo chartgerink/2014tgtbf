@@ -7,13 +7,16 @@ setwd(mypath)
 # Load custom functions
 source("a.Functions/FisherExTest.R")
 # source("a.Functions/TerminalDigits.R")
-source("a.Functions/ESComp.R")
+source("a.Functions/esComp.R")
+source("a.Functions/simNullDist.R")
 
 
 ###############
 # Pilot Study #
 ###############
-## Importing and preparing datafile
+
+# Preliminary stuff #
+# Importing and preparing datafile
 copilot <- read.table("1.Pilot study/copilot.txt",stringsAsFactors=F)
 # Removing out of bounds p-values
 selNA <- copilot$p_value_computed>=1
@@ -23,11 +26,16 @@ copilot$p_value_computed[selNA] <- NA
 copilot$test_statistic_value <- suppressWarnings(as.numeric(sub(",",".",copilot$test_statistic_value)))
 copilot$df1 <- suppressWarnings(as.numeric(sub(",",".",copilot$df1)))
 copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
-
+# Computing unadjusted and adjusted effect sizes
+copilot <- cbind(copilot, esComp.statcheck(copilot))
 # Computing fisher test statistics (inexact)
 resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
+
+
+# Fisher test #
+###############
 # Descriptive statistics
-# Non-significant results
+# Non-significant results per paper
 # Percent
 mean(resPilot$PercentNonSig)
 hist(resPilot$PercentNonSig,breaks=20, main="Percentages of non-significant results", xlab="Percentage")
@@ -79,9 +87,13 @@ for(i in 1:length(signNSel)){
 mean(meanNSig, na.rm=T)
 mean(meanNComplSig, na.rm=T)
 
-# Computing unadjusted and adjusted effect sizes
-copilot <- cbind(copilot, ESComp(copilot))
 
+
+# Simulating effect sizes under the null
+# Create vector of selected test stats
+# Create vector of equal uniform p val under alpha
+# Compute test statistic under p
+# Compute effect size under test statistic
 
 ###########
 # Figures #

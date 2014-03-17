@@ -1,6 +1,6 @@
 
 ---
-# Masterthesis meet 6 february
+# Masterthesis meet 6 March
 
 ## Marcel's notes
 1. H0 distribution effect sizes versus observed

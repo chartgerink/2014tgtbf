@@ -4,15 +4,17 @@ FisherExTest <- function(# Compute Fisher's exact test for non-significant p-val
 	### Computations are done for p*=log(p), where p is all non-significant p-values for each identifier.
 	x,
 	### Vector of p-values.
-    id
+    id,
     ### Vector giving paper identifiers.
+    alpha = .05
+    ### Indicate what alpha level is being maintained for the study results, which serves as a cut-off for selecting the non-significant p-values.
     ){
 	Res <- NULL
 	for(i in 1:length(unique(id)))
 	{
 			selP <- x[id==i]
-			nSigP <- na.omit(selP[selP>.05])
-			SigP <- na.omit(selP[selP<=.05])
+			nSigP <- na.omit(selP[selP>alpha])
+			SigP <- na.omit(selP[selP<=alpha])
 			if(!length(nSigP)==0){
 				FExTest <- -sum(log(nSigP))
 				# Compute the Fisher test statistic
