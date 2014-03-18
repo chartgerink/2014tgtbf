@@ -26,11 +26,19 @@ copilot$p_value_computed[selNA] <- NA
 copilot$test_statistic_value <- suppressWarnings(as.numeric(sub(",",".",copilot$test_statistic_value)))
 copilot$df1 <- suppressWarnings(as.numeric(sub(",",".",copilot$df1)))
 copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
-# Computing unadjusted and adjusted effect sizes
+# Computing unadjusted and adjusted effect sizes (OBSERVED)
 copilot <- cbind(copilot, esComp.statcheck(copilot))
+# Computing unadjusted and adjusted effect size distributions under NO effect
+x1 <- proc.time()[1]
+temp <- simNullDist(copilot, n.iter=100000, alpha=.05)
+x2 <- proc.time()[1]
+x2-x1
 # Computing fisher test statistics (inexact)
 resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
 
+plot(density(na.omit(temp$esComp)),col="red")
+lines(density(na.omit(copilot$esComp
+)))
 
 # Fisher test #
 ###############
