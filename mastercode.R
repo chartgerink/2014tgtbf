@@ -9,12 +9,12 @@ source("a.Functions/FisherExTest.R")
 # source("a.Functions/TerminalDigits.R")
 source("a.Functions/esComp.R")
 source("a.Functions/simNullDist.R")
+source("a.Functions/simEffDist.R")
 
 
 ###############
 # Pilot Study #
 ###############
-
 # Preliminary stuff #
 # Importing and preparing datafile
 copilot <- read.table("1.Pilot study/copilot.txt",stringsAsFactors=F)
@@ -29,14 +29,11 @@ copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
 # Computing unadjusted and adjusted effect sizes (OBSERVED)
 copilot <- cbind(copilot, esComp.statcheck(copilot))
 # Computing unadjusted and adjusted effect size distributions under NO effect
-x1 <- proc.time()[1]
-temp <- simNullDist(copilot, n.iter=100000, alpha=.05)
-x2 <- proc.time()[1]
-x2-x1
+simNullEs <- simNullDist(copilot, n.iter=1000, alpha=.05)
 # Computing fisher test statistics (inexact)
 resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
 
-plot(density(na.omit(temp$esComp)),col="red")
+plot(density(na.omit(simNullEs$esComp)),col="red", frame.plot=FALSE)
 lines(density(na.omit(copilot$esComp
 )))
 

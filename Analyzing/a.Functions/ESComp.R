@@ -3,14 +3,39 @@ esComp <- function(
   df1,
   df2,
   esType,
-  adjusted){
-  if(esType == "t"){
-(x^2*(1 / df1)) / (((x^2*1) / df1) + 1)
-  } else if(esType == "F"){
-(x*(df1 / df2)) / (((test_statistic_value*df1) / df2) + 1)
-    } else if(esType == "r"){
-
-    }
+  adjusted=TRUE){
+ esComp <- ifelse(esType=="t",
+   (x^2*(1 / df1)) / (((x^2*1) / df1) + 1),
+   ifelse(
+     esType=="F",
+     (x*(df1 / df2)) / (((x*df1) / df2) + 1),
+     ifelse(
+       esType=="r",
+       x^2,
+                       #                        ifelse(
+                       #                          esType=="Chi2",
+                       #                          sqrt(x[esType=="Chi2"]/(df1[esType=="Chi2"]+1)),
+                       NA
+                       )
+     )
+   )
+  #   )
+adjESComp <- ifelse(esType=="t",
+  (x^2 * (1 / df1) - (1 / df1)) / (((x^2*1) / df1) + 1),
+  ifelse(
+    esType=="F",
+    (x * (df1 / df2) - (df1 / df2)) / (((x*df1) / df2) + 1),
+    ifelse(
+      esType=="r",
+      x^2-((1-x^2)/df1),
+                          #                        ifelse(
+                          #                          esType=="Chi2",
+                          #                          sqrt(x[esType=="Chi2"]/(x$df1[x$esType=="Chi2"]+1)),
+                          NA
+                          )
+    )
+  )
+return(cbind(esComp,adjESComp))
 }
 
 esComp.statcheck <- function(# Function to compute effect sizes for a \code{statcheck} object

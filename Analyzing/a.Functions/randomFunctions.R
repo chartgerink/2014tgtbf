@@ -53,3 +53,5 @@ sVarComp <- function(# Compute sampling variances for correlation coefficients
   sVar <- 1/(testN-3)
   return(sVar)
 }
+
+t2r <- 

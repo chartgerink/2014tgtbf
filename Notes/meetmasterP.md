@@ -1,3 +1,11 @@
+# Random thoughts on structure of the paper
+## 20th of March
+
+1. Philosophical reflection of NHST
+	a. Falsification -> Dichotomy of testing
+	b. Dichotomy of testing -> Objectivism
+
+
 
 ---
 # Masterthesis meet 6 March
