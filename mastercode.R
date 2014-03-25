@@ -10,6 +10,7 @@ source("a.Functions/FisherExTest.R")
 source("a.Functions/esComp.R")
 source("a.Functions/simNullDist.R")
 source("a.Functions/simEffDist.R")
+source("a.Functions/powerCalc.R")
 
 
 ###############
