@@ -19,13 +19,14 @@ powerCalc <- function(
 
 	# Create object to be filled with all data
 	temp <- matrix(nrow=length(unique(x$pap_id)),ncol=length(effectSize))
-	tempDF <- as.data.frame(temp)
-	names(tempDF) <- effectSize
+	finalDF <- as.data.frame(temp)
+	names(finalDF) <- effectSize
 	rm(temp)
 
 	# Simulate effects under the effect sizes for each test statistic to determine power of the test
 	for(p in 1:length(unique(x$pap_id))){
 		selectStats <- x[x$pap_id==p,]
+		tempMat <- matrix(nrow=n.iter,ncol=dim(selectStats)[1])
 		for(s in 1:dim(selectStats)[1]){
 			for(es in 1:length(effectSize)){
 				res <- NULL
@@ -34,47 +35,51 @@ powerCalc <- function(
 					cv <- qf((1-alpha/2),1,selectStats$df1[s])
 					ncp <- (effectSize[es]/1-effectSize[es])*(1+selectStats$df1[s]+1)
 					testBeta <- pf(cv,1,selectStats$df1[s],ncp)
-					if(length(res)<=n.iter){
+					while(length(resP)<n.iter){
 						temp <- rf(1, 1, selectStats$df1[s], ncp)
 						if(temp < testBeta){
-							res <- c(res, temp)
+							# res <- c(res, temp)
 							resP <- c(resP, pf(temp,1,selectStats$df1[s]))
 						}
 					}
-					# tempDF[s,es] <- length(resP[resP<.1])/length(resP)
+					# tempMat[,es] <- resP
+					# tempMat[s,es] <- length(resP[resP<.1])/length(resP)
 					} else if(selectStats$test_statistic[s]=="F"){
 						cv <- qf((1-alpha/2),selectStats$df1[s],selectStats$df2[s])
 						ncp <- (effectSize[es]/1-effectSize[es])*(selectStats$df1[s]+selectStats$df2[s]+1)
 						testBeta <- pf(cv,selectStats$df1[s],selectStats$df2[s],ncp)
-						if(length(res)<=n.iter){
+						while(length(resP)<n.iter){
 							temp <- rf(1, selectStats$df1[s], selectStats$df2[s], ncp)
 							if(temp < testBeta){
 								res <- c(res, temp)
 								resP <- c(resP, pf(temp,selectStats$df1[s],selectStats$df2[s]))
 							}
 						}
-						# tempDF[s,es] <- length(resP[resP<.1])/length(resP)
+						# tempMat[,es] <- resP
+						# tempMat[s,es] <- length(resP[resP<.1])/length(resP)
 						} else if(selectStats$test_statistic[s]=="r"){
 							cv <- qf((1-alpha/2),1,selectStats$df1[s])
 							ncp <- (effectSize[es]/1-effectSize[es])*(1+selectStats$df1[s]+1)
 							testBeta <- pf(cv,1,selectStats$df1[s],ncp)
-							if(length(res)<=n.iter){
+							while(length(resP)<n.iter){
 								temp <- rf(1, 1, selectStats$df1[s], ncp)
 								if(temp < testBeta){
 									res <- c(res, temp)
 									resP <- c(resP, pf(temp,1,selectStats$df1[s]))
 								}
 							}
-							# tempDF[s,es] <- length(resP[resP<.1])/length(resP)
+							# tempMat[,es] <- resP
+							# tempMat[s,es] <- length(resP[resP<.1])/length(resP)
 
 							} else {
-								# tempDF[s,es] <- NA
+								# tempMat[s,es] <- NA
+								resP <- NA
 
 							}
 						}
 					}
 				}
-				return(selectStats)
+				return(resP)
 			}
 
 
