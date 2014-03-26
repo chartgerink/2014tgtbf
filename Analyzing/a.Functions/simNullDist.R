@@ -79,7 +79,7 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 		# 			NA)
 		# 		)
 		# 	)
-print( paste0("still working",i))
+print( paste0("still working, now at iteration ",i))
 }
 
 	# Trying to make this with ddply and not looping it for speed, not functional yet

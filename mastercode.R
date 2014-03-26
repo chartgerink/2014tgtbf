@@ -16,6 +16,7 @@ source("a.Functions/powerCalc.R")
 ###############
 # Pilot Study #
 ###############
+###############################################################################
 # Preliminary stuff #
 # Importing and preparing datafile
 copilot <- read.table("1.Pilot study/copilot.txt",stringsAsFactors=F)
@@ -29,15 +30,34 @@ copilot$df1 <- suppressWarnings(as.numeric(sub(",",".",copilot$df1)))
 copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
 # Computing unadjusted and adjusted effect sizes (OBSERVED)
 copilot <- cbind(copilot, esComp.statcheck(copilot))
+###############################################################################
+# Step 1 - observed effect distribution versus nil effect distribution
 # Computing unadjusted and adjusted effect size distributions under NO effect
 simNullEs <- simNullDist(copilot, n.iter=1000, alpha=.05)
 # Computing fisher test statistics (inexact)
 resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
-
 plot(density(na.omit(simNullEs$esComp)),col="red", frame.plot=FALSE)
-lines(density(na.omit(copilot$esComp
-)))
+lines(density(na.omit(copilot$esComp)))
+###############################################################################
+# Step 2 - Power calculations fisher test for papers under different ES
+powerRes <- powerCalc(copilot, effectSize=seq(.05,.95,by=.05),testAlpha=.1,n.iter=1000)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################
+######################### Random other things #################################
+###############################################################################
 # Fisher test #
 ###############
 # Descriptive statistics
