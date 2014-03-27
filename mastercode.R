@@ -12,6 +12,9 @@ source("a.Functions/simNullDist.R")
 source("a.Functions/simEffDist.R")
 source("a.Functions/powerCalc.R")
 
+esSize <- c(seq(.01,.05,.01)[1:4],seq(.05,.15,.02)[1:5],seq(.15,.95,.05))
+source("a.Functions/powerCalc.R");x <- powerCalc(copilot,effectSize=esSize,n.iter=1000,testAlpha=.1)
+
 
 ###############
 # Pilot Study #
