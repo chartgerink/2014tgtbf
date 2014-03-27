@@ -16,6 +16,7 @@ powerCalc <- function(
 	##Returns dataframe with the amount of rows equalling the amount of unique papers in the original statcheck object.
 	##Indicates the power per paper, per effect size (each column).
 
+	require(gtools)
 	# Calculate effects just in case the statcheck object doesn't have them yet
 	x <- cbind(x,esComp.statcheck(x))
 
@@ -54,7 +55,7 @@ powerCalc <- function(
 					prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
 					sampleProb <- runif(n.iter,0,prob)
 					sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
-					resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+					resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=T)
 				} 
 				else if(selectStats$test_statistic[s]=="F"){
 					cv <- qf(alpha,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
@@ -62,7 +63,7 @@ powerCalc <- function(
 					prob <- pf(cv,selectStats$df1[s],selectStats$df2[s],ncp=ncp,lower.tail=T)
 					sampleProb <- runif(n.iter,0,prob)	
 					sampleTest <- qf(sampleProb,selectStats$df1[s],selectStats$df2[s],ncp=ncp)
-					resP <- pf(sampleTest,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
+					resP <- pf(sampleTest,selectStats$df1[s],selectStats$df2[s],lower.tail=T)
 				}
 				else if(selectStats$test_statistic[s]=="r"){
 					cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
@@ -70,26 +71,41 @@ powerCalc <- function(
 					prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
 					sampleProb <- runif(n.iter,0,prob)
 					sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
-					resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+					resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=T)
 				}
 
 
 				else {
-					while(length(resP) < n.iter){
-						resP <- c(resP, NA)
-					}
+					resP <- NA
 				}
-				tempMat[[p]][,s] <- resP/.95
+				
+				tempMat[[p]][,s] <- resP
 				# minimumP <- c(minimumP,min(resP))
 				print(paste("Still working, no worries, paper", p, "statistic", s, sep=" "))
 				# print(resP)
 			}
-
-			require(gtools)
-			if(invalid(tempMat[[p]][!is.na(colSums(tempMat[[p]])),])){
-
+			if(sum(is.na(tempMat[[p]]))==(dim(tempMat[[p]])[1]*dim(tempMat[[p]])[2])) {
+				finalDF[[1]][p,es] <- NA
+				finalDF[[2]][p,es] <- NA
 				} else{
-					tempMat[[p]][,!is.na(colSums(tempMat[[p]]))]}
+				# 	finalDF[[1]][p,es] <- 1
+				# finalDF[[2]][p,es] <- 1
+					sel[[p]] <- as.matrix(as.matrix(tempMat[[p]])[,colSums(is.na(tempMat[[p]])) != nrow(tempMat[[p]])])
+					# if(dim(sel)[2]==1){print('yes')}else{print('no')}
+					fishTest[p] <- apply(sel[[p]],1,function(x) -sum(log(x)))
+					fishTestCompl[p] <- apply(sel[[p]],1,function(x) -sum(log(1-(x))))
+					pFishTest[p] <- pgamma(fishTest[p],dim(sel[[p]])[2],lower.tail=F)
+					pFishTestCompl[p] <- pgamma(fishTestCompl[p],dim(sel[[p]])[2],lower.tail=F)
+					propSigFishTest[p] <- sum(na.omit(pFishTest) < testAlpha)/length(na.omit(pFishTest))
+					propSigFishTestCompl[p] <- sum(na.omit(pFishTestCompl) < testAlpha)/length(na.omit(pFishTestCompl))
+					finalDF[[1]][p,es] <- propSigFishTest[p]
+					finalDF[[2]][p,es] <- propSigFishTestCompl[p]
+					print("LOL")
+				}
+			# if(invalid(tempMat[[p]][,!is.na(colSums(tempMat[[p]]))])){
+
+				# } else{
+					# tempMat[[p]][,!is.na(colSums(tempMat[[p]]))]}
 			# if(dim(tempMat[[p]])[2]==1){tempMat[[p]] <- as.vector(tempMat[[p]])}
 			# Just making sure all non t, F, r columns are removed
 			# sel[p] <- sum(colSums(is.na(tempMat[[p]])) == nrow(tempMat[[p]]))==ncol(tempMat[[p]])
@@ -98,7 +114,7 @@ powerCalc <- function(
 			# 	fishTestCompl[p] <- NA
 			# 	} else {
 			# 		sel <- tempMat[[p]][,colSums(is.na(tempMat[[p]])) != nrow(tempMat[[p]])]
-			fishTest[p] <- apply(tempMat[[p]],1,function(x) -sum(log(x)))
+			# fishTest[p] <- apply(tempMat[[p]],1,function(x) -sum(log(x)))
 					# fishTestCompl[p] <- apply(tempMat[[p]],1,function(x) -sum(log(1-(x))))			
 			# 	}
 				# pFishTest <- pgamma(fishTest,dim(sel)[2],lower.tail=F)
@@ -115,7 +131,7 @@ powerCalc <- function(
 							# }
 						}
 					}
-					return(tempMat)
+					return(finalDF)
 				}
 
 		# 			for(p in 1:length(unique(x$pap_id))){
