@@ -13,7 +13,7 @@ FisherExTest <- function(# Compute Fisher's exact test for non-significant p-val
 	for(i in 1:length(unique(id)))
 	{
 			selP <- x[id==i]
-			nSigP <- na.omit(selP[selP>alpha])
+			nSigP <- (na.omit(selP[selP>alpha])-alpha)/(1-alpha)
 			SigP <- na.omit(selP[selP<=alpha])
 			if(!length(nSigP)==0){
 				FExTest <- -sum(log(nSigP))

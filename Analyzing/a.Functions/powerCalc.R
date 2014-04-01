@@ -92,7 +92,6 @@ powerCalc <- function(
 					propSigFishTestCompl[p] <- sum(na.omit(pFishTestCompl[[p]]) < testAlpha)/length(na.omit(pFishTestCompl[[p]]))
 					finalDF[[1]][p,es] <- propSigFishTest[p]
 					finalDF[[2]][p,es] <- propSigFishTestCompl[p]
-					print("LOL")
 				}
 			}
 		}

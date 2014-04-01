@@ -4,17 +4,11 @@
 # Home Computer
 mypath <- "C:/Users/Chris/Dropbox/CJM/Masterproject/Analyzing/"
 setwd(mypath)
-# Load custom functions
-source("a.Functions/FisherExTest.R")
-# source("a.Functions/TerminalDigits.R")
-source("a.Functions/esComp.R")
-source("a.Functions/simNullDist.R")
-source("a.Functions/simEffDist.R")
-source("a.Functions/powerCalc.R")
-
-esSize <- c(seq(.01,.05,.01)[1:4],seq(.05,.15,.02)[1:5],seq(.15,.95,.05))
-source("a.Functions/powerCalc.R");x <- powerCalc(copilot,effectSize=esSize,n.iter=1000,testAlpha=.1)
-
+# Load custom functions all at once
+customFunct <- list.files('a.Functions/')
+for(i in 1:length(customFunct)){
+  source(paste0('a.Functions/',customFunct[i]))
+}
 
 ###############
 # Pilot Study #
@@ -23,32 +17,31 @@ source("a.Functions/powerCalc.R");x <- powerCalc(copilot,effectSize=esSize,n.ite
 # Preliminary stuff #
 # Importing and preparing datafile
 copilot <- read.table("1.Pilot study/copilot.txt",stringsAsFactors=F)
-# Removing out of bounds p-values
-selNA <- copilot$p_value_computed>=1
-sum(selNA[!is.na(selNA)])
-copilot$p_value_computed[selNA] <- NA
-# Replace all comma's with decimal points and make the variable numeric.
-copilot$test_statistic_value <- suppressWarnings(as.numeric(sub(",",".",copilot$test_statistic_value)))
-copilot$df1 <- suppressWarnings(as.numeric(sub(",",".",copilot$df1)))
-copilot$df2 <- suppressWarnings(as.numeric(sub(",",".",copilot$df2)))
-# Computing unadjusted and adjusted effect sizes (OBSERVED)
-copilot <- cbind(copilot, esComp.statcheck(copilot))
+copilot <- prep.statcheck(copilot)
 ###############################################################################
 # Step 1 - observed effect distribution versus nil effect distribution
 # Computing unadjusted and adjusted effect size distributions under NO effect
-simNullEs <- simNullDist(copilot, n.iter=1000, alpha=.05)
-# Computing fisher test statistics (inexact)
-resPilot <- FisherExTest(copilot$p_value_computed, copilot$pap_id)
-plot(density(na.omit(simNullEs$esComp)),col="red", frame.plot=FALSE)
+simNullEs <- simNullDist(copilot, n.iter=10000, alpha=.05)
+plot(density(na.omit(simNullEs$esComp)),
+     col="red",
+     frame.plot=F, 
+     main="Effect size distributions",
+     xlim=c(0,1),
+     xaxs="i",
+     yaxs="i",
+     xlab="Eta-squared effect",
+     cex.axis=.6,
+     cex.lab=.7)
 lines(density(na.omit(copilot$esComp)))
+
+# Computing fisher test statistics (inexact)
+resPilot <- FisherExTest(copilot$Computed, copilot$Source)
+
 ###############################################################################
 # Step 2 - Power calculations fisher test for papers under different ES
+esSize <- c(seq(.01,.05,.01)[1:4],seq(.05,.15,.02)[1:5],seq(.15,.95,.05))
+powerRes <- powerCalc(copilot,effectSize=esSize,n.iter=1000,testAlpha=.1)
 powerRes <- powerCalc(copilot, effectSize=seq(.05,.95,by=.05),testAlpha=.1,n.iter=1000)
-
-
-
-
-
 
 
 
@@ -98,7 +91,7 @@ for(i in 1:length(signSel)){
   if(is.na(signSel[i])){
     meanNSig[i] <- NA
   } else if(signSel[i]==TRUE){
-    meanNSig[i] <- mean(copilot$N[copilot$pap_id==i], na.rm=T)
+    meanNSig[i] <- mean(copilot$N[copilot$Source==i], na.rm=T)
   } else {
     meanNSig[i] <- NA  
   }
@@ -108,7 +101,7 @@ for(i in 1:length(signNSel)){
   if(is.na(signNSel[i])){
     meanNComplSig[i] <- NA
   } else if(signNSel[i]==TRUE){
-    meanNComplSig[i] <- mean(copilot$N[copilot$pap_id==i], na.rm=T)
+    meanNComplSig[i] <- mean(copilot$N[copilot$Source==i], na.rm=T)
   } else {
     meanNComplSig[i] <- NA  
   }
