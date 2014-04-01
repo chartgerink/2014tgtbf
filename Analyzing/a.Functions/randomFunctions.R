@@ -22,17 +22,17 @@ nCalc <- function(# Compute sample sizes based on dfs.
   x
 ### A \code{statcheck} object.
 ){
-  testN <- ifelse(x$test_statistic=="t",
+  testN <- ifelse(x$Statistic=="t",
    x$df1+1,
    ifelse(
-     x$test_statistic=="F",
+     x$Statistic=="F",
      x$df2-(x$df1+1),
      ifelse(
-       x$test_statistic=="r",
+       x$Statistic=="r",
        x$df+2,
                        #                        ifelse(
-                       #                          x$test_statistic=="Chi2",
-                       #                          sqrt(x$test_statistic_value[x$test_statistic=="Chi2"]/(x$df1[x$test_statistic=="Chi2"]+1)),
+                       #                          x$Statistic=="Chi2",
+                       #                          sqrt(x$Statistic_value[x$Statistic=="Chi2"]/(x$df1[x$Statistic=="Chi2"]+1)),
                        NA
                        )
      )

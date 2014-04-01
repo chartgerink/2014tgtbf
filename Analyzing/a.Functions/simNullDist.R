@@ -28,30 +28,30 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 	# testStat <- NULL
 	# testVal <- NULL
 	for(i in 1:n.iter){
-		esComp[i] <- ifelse(x$test_statistic[i]=="t",
+		esComp[i] <- ifelse(x$Statistic[i]=="t",
 			(qt(pVal[i], x$df1[i])^2*(1 / x$df1[i]))
 			/ (((qt(pVal[i], x$df1[i])^2*1) / x$df1[i]) + 1),
 			ifelse(
-				x$test_statistic[i]=="F",
+				x$Statistic[i]=="F",
 				(qf(pVal[i], x$df1[i], x$df2[i])*(x$df1[i] / x$df2[i]))
 				/ (((qf(pVal[i], x$df1[i], x$df2[i])*x$df1[i]) / x$df2[i]) + 1),
 				ifelse(
-					x$test_statistic[i]=="r",
+					x$Statistic[i]=="r",
 					sqrt(qt(pVal[i], x$df1[i])^2
 						/(qt(pVal[i], x$df1[i])^2+x$df1[i])^2),
 						NA
 						)
 					)
 				)
-		adjESComp[i] <- ifelse(x$test_statistic[i]=="t",
+		adjESComp[i] <- ifelse(x$Statistic[i]=="t",
 			(qt(pVal[i], x$df1[i])^2 * (1 / x$df1[i]) - (1 / x$df1[i])) 
 			/ (((qt(pVal[i], x$df1[i])^2*1) / x$df1[i]) + 1),
 			ifelse(
-				x$test_statistic[i]=="F",
+				x$Statistic[i]=="F",
 				(qf(pVal[i], x$df1[i], x$df2[i]) * (x$df1[i] / x$df2[i]) - (x$df1[i] / x$df2[i])) 
 				/ (((qf(pVal[i], x$df1[i], x$df2[i])*x$df1[i]) / x$df2[i]) + 1),
 				ifelse(
-					x$test_statistic[i]=="r",
+					x$Statistic[i]=="r",
 					sqrt(qt(pVal[i], x$df1[i])^2/(qt(pVal[i], x$df1[i])^2+x$df1[i]))^2
 					-((1-sqrt(qt(pVal[i], x$df1[i])^2
 						/(qt(pVal[i], x$df1[i])^2+x$df1[i]))^2)/x$df1[i]),
@@ -60,21 +60,21 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 				)
 			)
 		# testStat[i] <- ifelse(
-		# 	x[sampledStats[i],]$test_statistic=="F"
+		# 	x[sampledStats[i],]$Statistic=="F"
 		# 	"F",
-		# 	ifelse(x$test_statistic=="t",
+		# 	ifelse(x$Statistic=="t",
 		# 		"t",
-		# 		ifelse(x$test_statistic=="r",
+		# 		ifelse(x$Statistic=="r",
 		# 			"r",
 		# 			NA)
 		# 		)
 		# 	)
 		# testVal[i] <- ifelse(
-		# 	x[sampledStats[i],]$test_statistic=="F",
+		# 	x[sampledStats[i],]$Statistic=="F",
 		# 	qf(pVal[i], x$df1, x$df2),
-		# 	ifelse(x$test_statistic=="t",
+		# 	ifelse(x$Statistic=="t",
 		# 		qt(pVal[i], x$df1),
-		# 		ifelse(x$test_statistic=="r",
+		# 		ifelse(x$Statistic=="r",
 		# 			sqrt(qt(pVal[i], x$df1)^2/(qt(pVal[i], x$df1)^2+x$df1)),
 		# 			NA)
 		# 		)
@@ -83,11 +83,11 @@ print( paste0("still working, now at iteration ",i))
 }
 
 	# Trying to make this with ddply and not looping it for speed, not functional yet
-	# res <- 	ddply(copilot,.(test_statistic), .fun = function(copilot) ifelse(x$test_statistic=="t",
+	# res <- 	ddply(copilot,.(Statistic), .fun = function(copilot) ifelse(x$Statistic=="t",
 	# 	qt(pVal, x$df1),
-	# 	ifelse(x$test_statistic=="F",
+	# 	ifelse(x$Statistic=="F",
 	# 		qf(pVal, x$df1, x$df2),
-	# 		ifelse(x$test_statistic=="r",
+	# 		ifelse(x$Statistic=="r",
 	# 			qt(pVal, x$df1),
 	# 			NA))))
 	# apply(x, 1, function(x) ))

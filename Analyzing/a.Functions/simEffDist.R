@@ -18,13 +18,13 @@ simEffDist <- function(# Simulate effect size distributions
 	pVal <- NULL
 	for(i in 1:n.iter){
 		temp <- x[sampledStats[i],]
-		if(x$test_statistic[sampledStats[i]]=="F"){
+		if(x$Statistic[sampledStats[i]]=="F"){
 			testVal[i] <- ((x$df2[i]/x$df1[sampledStats[i]])*es)/(1-es)
 			pVal[i] <- qf(testVal[i], x$df1[sampledStats[i]], x$df2[sampledStats[i]])
-			} else if(x$test_statistic[sampledStats[i]]=="t"){
+			} else if(x$Statistic[sampledStats[i]]=="t"){
 				testVal[i] <- sqrt((x$df1[sampledStats[i]]*es)/(1-es))
 				pVal[i] <- qt(testVal[i], x$df1[sampledStats[i]])
-				} else if(x$test_statistic[i]=="r"){
+				} else if(x$Statistic[i]=="r"){
 					testVal[i] <- sqrt(es)/sqrt((1-sqrt(es))(x$df1[sampledStats[i]]))
 					pVal[i] <- qt(testVal[i], x$df1[sampledStats[i]])
 				} else{
@@ -41,7 +41,7 @@ return(pVal)
 	# pVal <- runif(n.iter,
 	# 	min = alpha,
 	# 	max = 1)
-	# testValType <- x$test_statistic
+	# testValType <- x$Statistic
 	# # Generate a dataframe
 	# ddply()
 	# for(i in 1:length(sampledStats)){
@@ -52,17 +52,17 @@ return(pVal)
 }
 
 
-# ifelse(x$test_statistic=="t",
+# ifelse(x$Statistic=="t",
 # 	qt(
 # 		pVal[i],
 # 		x$df1),
 # 	ifelse(
-# 		x$test_statistic=="F",
+# 		x$Statistic=="F",
 # 		qf(
 # 			pVal[i],
 # 			x$df1,x$df2),
 # 		ifelse(
-# 			x$test_statistic=="r",
+# 			x$Statistic=="r",
 # 			qt(
 # 				pVal[i],
 # 				x$df1),

@@ -1,4 +1,4 @@
-"pap_id" "stat_id" "test_statistic" "df1" "df2" "test_statistic_value" "p_value_reported" "p_value_computed" "raw_result_reported"
+"Source" "stat_id" "Statistic" "df1" "df2" "Value" "Reported.P.Value" "Computed" "Raw"
 "1" 1 1 "t" "47" NA "-2.09" 0.042 0.042054451 "t(47) = -2.09, p = .042"
 "2" 1 2 "t" "47" NA "-0.26" 0.8 0.79599941 "t(47) = -0.26, p = .80"
 "3" 1 3 "t" "17" NA "4.91" 0.001 0.00013234 "t(17) = 4.91, p < .001"

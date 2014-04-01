@@ -22,7 +22,7 @@ powerCalc <- function(
 
 	# Create object to be filled with all data
 	finalDF <- NULL
-	temp <- matrix(nrow=length(unique(x$pap_id)),ncol=length(effectSize))
+	temp <- matrix(nrow=length(unique(x$Source)),ncol=length(effectSize))
 	finalDF[[1]] <- as.data.frame(temp)
 	finalDF[[2]] <- as.data.frame(temp)
 	names(finalDF[[1]]) <- effectSize
@@ -40,8 +40,8 @@ powerCalc <- function(
 	fishTest <- NULL
 	fishTestCompl <- NULL
 	# Simulate effects under the effect sizes for each test statistic to determine power of the test
-	for(p in 1:length(unique(x$pap_id))){
-		selectStats <- x[x$pap_id==p,]
+	for(p in 1:length(unique(x$Source))){
+		selectStats <- x[x$Source==p,]
 		tempMat[[p]] <- matrix(nrow=n.iter,ncol=dim(selectStats)[1])
 
 		for(es in 1:length(effectSize)){
@@ -49,7 +49,7 @@ powerCalc <- function(
 				res <- NULL
 				resP <- NULL
 
-				if(selectStats$test_statistic[s]=="t"){
+				if(selectStats$Statistic[s]=="t"){
 					cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
 					ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
 					prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
@@ -57,7 +57,7 @@ powerCalc <- function(
 					sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
 					resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
 				} 
-				else if(selectStats$test_statistic[s]=="F"){
+				else if(selectStats$Statistic[s]=="F"){
 					cv <- qf(alpha,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
 					ncp <- (effectSize[es]/(1-effectSize[es]))*(selectStats$df1[s]+selectStats$df2[s]+1)
 					prob <- pf(cv,selectStats$df1[s],selectStats$df2[s],ncp=ncp,lower.tail=T)
@@ -65,7 +65,7 @@ powerCalc <- function(
 					sampleTest <- qf(sampleProb,selectStats$df1[s],selectStats$df2[s],ncp=ncp)
 					resP <- pf(sampleTest,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
 				}
-				else if(selectStats$test_statistic[s]=="r"){
+				else if(selectStats$Statistic[s]=="r"){
 					cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
 					ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
 					prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
