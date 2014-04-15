@@ -39,10 +39,10 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 					x$Statistic[i]=="r",
 					sqrt(qt(pVal[i], x$df1[i])^2
 						/(qt(pVal[i], x$df1[i])^2+x$df1[i])^2),
-						NA
-						)
+					NA
 					)
 				)
+			)
 		adjESComp[i] <- ifelse(x$Statistic[i]=="t",
 			(qt(pVal[i], x$df1[i])^2 * (1 / x$df1[i]) - (1 / x$df1[i])) 
 			/ (((qt(pVal[i], x$df1[i])^2*1) / x$df1[i]) + 1),
@@ -59,28 +59,8 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 					)
 				)
 			)
-		# testStat[i] <- ifelse(
-		# 	x[sampledStats[i],]$Statistic=="F"
-		# 	"F",
-		# 	ifelse(x$Statistic=="t",
-		# 		"t",
-		# 		ifelse(x$Statistic=="r",
-		# 			"r",
-		# 			NA)
-		# 		)
-		# 	)
-		# testVal[i] <- ifelse(
-		# 	x[sampledStats[i],]$Statistic=="F",
-		# 	qf(pVal[i], x$df1, x$df2),
-		# 	ifelse(x$Statistic=="t",
-		# 		qt(pVal[i], x$df1),
-		# 		ifelse(x$Statistic=="r",
-		# 			sqrt(qt(pVal[i], x$df1)^2/(qt(pVal[i], x$df1)^2+x$df1)),
-		# 			NA)
-		# 		)
-		# 	)
-print( paste0("still working, now at iteration ",i))
-}
+		print( paste0("still working, now at iteration ",i))
+	}
 
 	# Trying to make this with ddply and not looping it for speed, not functional yet
 	# res <- 	ddply(copilot,.(Statistic), .fun = function(copilot) ifelse(x$Statistic=="t",

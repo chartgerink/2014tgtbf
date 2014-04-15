@@ -10,6 +10,19 @@ for(i in 1:length(customFunct)){
   source(paste0('a.Functions/',customFunct[i]))
 }
 
+
+# Introduction # 
+# Rejection rate comparison sample
+# Commented out due to runtime
+# y <- 0
+# for(i in 1:1000){
+#   set.seed(i)
+#   x1 <- rnorm(5000000,1,.1) + runif(5000000,0,.002)
+#   x2 <- rnorm(5000000,1,.1)+ runif(5000000,0,.001)
+#   x <- t.test(x1,x2,paired=F,var.equal=F,)
+#   if(x$p.value<.05){y <- y+1}}
+# y
+
 ###############
 # Pilot Study #
 ###############
@@ -21,30 +34,51 @@ copilot <- prep.statcheck(copilot)
 ###############################################################################
 # Step 1 - observed effect distribution versus nil effect distribution
 # Computing unadjusted and adjusted effect size distributions under NO effect
-simNullEs <- simNullDist(copilot, n.iter=10000, alpha=.05)
-plot(density(na.omit(simNullEs$esComp)),
-     col="red",
+set.seed(1234)
+simNullEs <- simNullDist(copilot, n.iter=length(copilot$esComp), alpha=.05)
+# Figure showing the difference between the nil effects and the observed effect distributions
+# Under non-significant test
+plot(ecdf(na.omit(simNullEs$esComp)),
+     lty=1,
      frame.plot=F, 
      main="Effect size distributions",
      xlim=c(0,1),
      xaxs="i",
      yaxs="i",
-     xlab="Eta-squared effect",
+     xlab="Partial eta-squared",
+     ylab = "Cumulative density",
      cex.axis=.6,
-     cex.lab=.7)
-lines(density(na.omit(copilot$esComp)))
+     cex.lab=.7,
+     col = "grey")
+lines(ecdf(na.omit(copilot$esComp)))
+legend(x=.7,y=.8,legend=c(expression('H'[0]), 'Observed effects'),cex=.7,lty=c(1,1), col = c("grey","black"),box.lwd=0)
 
-# Computing fisher test statistics (inexact)
-resPilot <- FisherExTest(copilot$Computed, copilot$Source)
+# Percentages of effects
+categories <- c(.01, .06, .14)
+effPerc <- effectPercent(copilot$esComp, categories = categories)
+clip(x1=0, x2=categories[1], y1 = 0, y2 = effPerc[1])
+abline(v = categories[1], lty = 2, col = "grey")
+clip(x1=0, x2=categories[2], y1 = 0, y2 = effPerc[2])
+abline(v = categories[2], lty = 3, col = "grey")
+clip(x1=0, x2=categories[3], y1 = 0, y2 = effPerc[3])
+abline(v = categories[3], lty = 4, col = "grey")
+
+# Kolmogorov-Smirnov test
+# Moet die over de p of over de effecten?
+ks.test(copilot$esComp, simNullEs$esComp)
+
 
 ###############################################################################
-# Step 2 - Power calculations fisher test for papers under different ES
-esSize <- c(seq(.01,.05,.01)[1:4],seq(.05,.15,.02)[1:5],seq(.15,.95,.05))
-powerRes <- powerCalc(copilot,effectSize=esSize,n.iter=1000,testAlpha=.1)
-powerRes <- powerCalc(copilot, effectSize=seq(.05,.95,by=.05),testAlpha=.1,n.iter=1000)
+# Step 2 - Computing (inexact) fisher test statistics
+resPilot <- FisherExTest(copilot$Computed, copilot$Source)
 
 
-
+###############################################################################
+# Step 3 - Power calculations fisher test for papers under different ES
+esSize <- c(seq(.01,.15,.02),seq(.20,.5,.05),seq(.6,.9,.1))
+powerRes <- powerCalc2(copilot,effectSize=esSize,n.iter=10,testAlpha=.1)
+write.csv2(powerRes[[1]],'powerCalcFish.csv')
+write.csv2(powerRes[[2]],'powerCalcFishCompl.csv')
 
 
 

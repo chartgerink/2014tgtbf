@@ -1,4 +1,4 @@
-powerCalc <- function(
+powerCalc2 <- function(
 	x,
 	### A \code{statcheck} object
 	effectSize = 0,

@@ -3,8 +3,8 @@ prep.statcheck <- function(# Prepare a statcheck object for analysis
 	### E.g., comma's as decimal points whereas R reads a period as decimal point.
 	### Additionally, this function immediately calls the esComp.statcheck() to compute effect sizes
 	x
-### A \code{statcheck} object.
-){
+	### A \code{statcheck} object.
+	){
 	# Removing out of bounds p-values
 	selNA <- x$Computed>=1
 	sum(selNA[!is.na(selNA)])
