@@ -60,17 +60,17 @@ powerCalc <- function(
 					resP <- NULL
 					if(selectStats$Statistic[s]=="t"){
 						# Determine critical value for (1tailed) alpha
-						cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
+						cv <- qf(alpha,1,selectStats$df2[s],lower.tail=F)
 						# Calculate NCP for effectsize
-						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
+						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df2[s]+1)
 						# Calculate area under curve for alternate distribution
-						prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
+						prob <- pf(cv,1,selectStats$df2[s],ncp=ncp,lower.tail=T)
 						# Sample between 0 and prob from previous
 						sampleProb <- runif(n.iter,0,prob)
 						# Calculate accompanying test statistic with probability
-						sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
+						sampleTest <- qf(sampleProb,1,selectStats$df2[s],ncp=ncp)
 						# Calculate p-value under the null given the non-significant value drawn from alternate
-						resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+						resP <- pf(sampleTest,1,selectStats$df2[s],lower.tail=F)
 					} 
 					else if(selectStats$Statistic[s]=="F"){
 						cv <- qf(alpha,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
@@ -81,12 +81,12 @@ powerCalc <- function(
 						resP <- pf(sampleTest,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
 					}
 					else if(selectStats$Statistic[s]=="r"){
-						cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
-						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
-						prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
+						cv <- qf(alpha,1,selectStats$df2[s],lower.tail=F)
+						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df2[s]+1)
+						prob <- pf(cv,1,selectStats$df2[s],ncp=ncp,lower.tail=T)
 						sampleProb <- runif(n.iter,0,prob)
-						sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
-						resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+						sampleTest <- qf(sampleProb,1,selectStats$df2[s],ncp=ncp)
+						resP <- pf(sampleTest,1,selectStats$df2[s],lower.tail=F)
 					}
 					else {
 						resP <- NA
@@ -140,17 +140,17 @@ powerCalc <- function(
 					resP <- NULL
 					if(selectStats$Statistic[s]=="t"){
 						# Determine critical value for (1tailed) alpha
-						cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
+						cv <- qf(alpha,1,selectStats$df2[s],lower.tail=F)
 						# Calculate NCP for effectsize
-						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
+						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df2[s]+1)
 						# Calculate area under curve for alternate distribution
-						prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
+						prob <- pf(cv,1,selectStats$df2[s],ncp=ncp,lower.tail=T)
 						# Sample between 0 and prob from previous
 						sampleProb <- runif(n.iter,0,prob)
 						# Calculate accompanying test statistic with probability
-						sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
+						sampleTest <- qf(sampleProb,1,selectStats$df2[s],ncp=ncp)
 						# Calculate p-value under the null given the non-significant value drawn from alternate
-						resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+						resP <- pf(sampleTest,1,selectStats$df2[s],lower.tail=F)
 					} 
 					else if(selectStats$Statistic[s]=="F"){
 						cv <- qf(alpha,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
@@ -161,12 +161,12 @@ powerCalc <- function(
 						resP <- pf(sampleTest,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
 					}
 					else if(selectStats$Statistic[s]=="r"){
-						cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
-						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
-						prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
+						cv <- qf(alpha,1,selectStats$df2[s],lower.tail=F)
+						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df2[s]+1)
+						prob <- pf(cv,1,selectStats$df2[s],ncp=ncp,lower.tail=T)
 						sampleProb <- runif(n.iter,0,prob)
-						sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
-						resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+						sampleTest <- qf(sampleProb,1,selectStats$df2[s],ncp=ncp)
+						resP <- pf(sampleTest,1,selectStats$df2[s],lower.tail=F)
 					}
 					else {
 						resP <- NA
@@ -211,17 +211,17 @@ powerCalc <- function(
 					resP <- NULL
 					if(selectStats$Statistic[s]=="t"){
 						# Determine critical value for (1tailed) alpha
-						cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
+						cv <- qf(alpha,1,selectStats$df2[s],lower.tail=F)
 						# Calculate NCP for effectsize
-						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
+						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df2[s]+1)
 						# Calculate area under curve for alternate distribution
-						prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
+						prob <- pf(cv,1,selectStats$df2[s],ncp=ncp,lower.tail=T)
 						# Sample between 0 and prob from previous
 						sampleProb <- runif(n.iter,0,prob)
 						# Calculate accompanying test statistic with probability
-						sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
+						sampleTest <- qf(sampleProb,1,selectStats$df2[s],ncp=ncp)
 						# Calculate p-value under the null given the non-significant value drawn from alternate
-						resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+						resP <- pf(sampleTest,1,selectStats$df2[s],lower.tail=F)
 					} 
 					else if(selectStats$Statistic[s]=="F"){
 						cv <- qf(alpha,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
@@ -232,12 +232,12 @@ powerCalc <- function(
 						resP <- pf(sampleTest,selectStats$df1[s],selectStats$df2[s],lower.tail=F)
 					}
 					else if(selectStats$Statistic[s]=="r"){
-						cv <- qf(alpha,1,selectStats$df1[s],lower.tail=F)
-						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df1[s]+1)
-						prob <- pf(cv,1,selectStats$df1[s],ncp=ncp,lower.tail=T)
+						cv <- qf(alpha,1,selectStats$df2[s],lower.tail=F)
+						ncp <- (effectSize[es]/(1-effectSize[es]))*(1+selectStats$df2[s]+1)
+						prob <- pf(cv,1,selectStats$df2[s],ncp=ncp,lower.tail=T)
 						sampleProb <- runif(n.iter,0,prob)
-						sampleTest <- qf(sampleProb,1,selectStats$df1[s],ncp=ncp)
-						resP <- pf(sampleTest,1,selectStats$df1[s],lower.tail=F)
+						sampleTest <- qf(sampleProb,1,selectStats$df2[s],ncp=ncp)
+						resP <- pf(sampleTest,1,selectStats$df2[s],lower.tail=F)
 					}
 					else {
 						resP <- NA

@@ -23,7 +23,7 @@ nCalc <- function(# Compute sample sizes based on dfs.
 ### A \code{statcheck} object.
 ){
   testN <- ifelse(x$Statistic=="t",
-   x$df1+1,
+   x$df2+1,
    ifelse(
      x$Statistic=="F",
      x$df2-(x$df1+1),

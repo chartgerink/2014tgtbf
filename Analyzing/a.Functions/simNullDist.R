@@ -29,32 +29,32 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 	# testVal <- NULL
 	for(i in 1:n.iter){
 		esComp[i] <- ifelse(x$Statistic[i]=="t",
-			(qt(pVal[i], x$df1[i])^2*(1 / x$df1[i]))
-			/ (((qt(pVal[i], x$df1[i])^2*1) / x$df1[i]) + 1),
+			(qt(pVal[i], x$df2[i])^2*(1 / x$df2[i]))
+			/ (((qt(pVal[i], x$df2[i])^2*1) / x$df2[i]) + 1),
 			ifelse(
 				x$Statistic[i]=="F",
 				(qf(pVal[i], x$df1[i], x$df2[i])*(x$df1[i] / x$df2[i]))
 				/ (((qf(pVal[i], x$df1[i], x$df2[i])*x$df1[i]) / x$df2[i]) + 1),
 				ifelse(
 					x$Statistic[i]=="r",
-					sqrt(qt(pVal[i], x$df1[i])^2
-						/(qt(pVal[i], x$df1[i])^2+x$df1[i])^2),
+					sqrt(qt(pVal[i], x$df2[i])^2
+						/(qt(pVal[i], x$df2[i])^2+x$df2[i])^2),
 					NA
 					)
 				)
 			)
 		adjESComp[i] <- ifelse(x$Statistic[i]=="t",
-			(qt(pVal[i], x$df1[i])^2 * (1 / x$df1[i]) - (1 / x$df1[i])) 
-			/ (((qt(pVal[i], x$df1[i])^2*1) / x$df1[i]) + 1),
+			(qt(pVal[i], x$df2[i])^2 * (1 / x$df2[i]) - (1 / x$df2[i])) 
+			/ (((qt(pVal[i], x$df2[i])^2*1) / x$df2[i]) + 1),
 			ifelse(
 				x$Statistic[i]=="F",
 				(qf(pVal[i], x$df1[i], x$df2[i]) * (x$df1[i] / x$df2[i]) - (x$df1[i] / x$df2[i])) 
 				/ (((qf(pVal[i], x$df1[i], x$df2[i])*x$df1[i]) / x$df2[i]) + 1),
 				ifelse(
 					x$Statistic[i]=="r",
-					sqrt(qt(pVal[i], x$df1[i])^2/(qt(pVal[i], x$df1[i])^2+x$df1[i]))^2
-					-((1-sqrt(qt(pVal[i], x$df1[i])^2
-						/(qt(pVal[i], x$df1[i])^2+x$df1[i]))^2)/x$df1[i]),
+					sqrt(qt(pVal[i], x$df2[i])^2/(qt(pVal[i], x$df2[i])^2+x$df2[i]))^2
+					-((1-sqrt(qt(pVal[i], x$df2[i])^2
+						/(qt(pVal[i], x$df2[i])^2+x$df2[i]))^2)/x$df2[i]),
 					NA
 					)
 				)

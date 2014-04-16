@@ -14,6 +14,7 @@ for(i in 1:length(customFunct)){
 # Introduction # 
 # Rejection rate comparison sample
 # Commented out due to runtime
+# x1 <- proc.time()[1]
 # y <- 0
 # for(i in 1:1000){
 #   set.seed(i)
@@ -21,7 +22,9 @@ for(i in 1:length(customFunct)){
 #   x2 <- rnorm(5000000,1,.1)+ runif(5000000,0,.001)
 #   x <- t.test(x1,x2,paired=F,var.equal=F,)
 #   if(x$p.value<.05){y <- y+1}}
+# x2 <- proc.time()[2]
 # y
+
 
 ###############
 # Pilot Study #
@@ -30,6 +33,11 @@ for(i in 1:length(customFunct)){
 # Preliminary stuff #
 # Importing and preparing datafile
 copilot <- read.table("1.Pilot study/copilot.txt",stringsAsFactors=F)
+# The following reordering of df1 to df2 is due to t and r values essentially
+# being F distributions, making for more parsimonious code. Copilot data was
+# collected by running old version of Statcheck, hence manually done here.
+copilot$df2[copilot$Statistic == "t" | copilot$Statistic == "r"] = copilot$df1[copilot$Statistic == "t" | copilot$Statistic == "r"]
+copilot$df1[copilot$Statistic == "t" | copilot$Statistic == "r"] = NA
 copilot <- prep.statcheck(copilot)
 ###############################################################################
 # Step 1 - observed effect distribution versus nil effect distribution
@@ -76,13 +84,10 @@ resPilot <- FisherExTest(copilot$Computed, copilot$Source)
 ###############################################################################
 # Step 3 - Power calculations fisher test for papers under different ES
 esSize <- c(seq(.01,.15,.02),seq(.20,.5,.05),seq(.6,.9,.1))
-powerRes <- powerCalc2(copilot,effectSize=esSize,n.iter=10,testAlpha=.1)
+set.seed(94438)
+powerRes <- powerCalc(copilot,effectSize=esSize,n.iter=1,testAlpha=.1)
 write.csv2(powerRes[[1]],'powerCalcFish.csv')
 write.csv2(powerRes[[2]],'powerCalcFishCompl.csv')
-
-
-
-
 
 
 ###############################################################################

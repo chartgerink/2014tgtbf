@@ -5,7 +5,7 @@ esComp <- function(
   esType,
   adjusted=TRUE){
  esComp <- ifelse(esType=="t",
-   (x^2*(1 / df1)) / (((x^2*1) / df1) + 1),
+   (x^2*(1 / df2)) / (((x^2*1) / df2) + 1),
    ifelse(
      esType=="F",
      (x*(df1 / df2)) / (((x*df1) / df2) + 1),
@@ -21,13 +21,13 @@ esComp <- function(
    )
   #   )
 adjESComp <- ifelse(esType=="t",
-  (x^2 * (1 / df1) - (1 / df1)) / (((x^2*1) / df1) + 1),
+  (x^2 * (1 / df2) - (1 / df2)) / (((x^2*1) / df2) + 1),
   ifelse(
     esType=="F",
     (x * (df1 / df2) - (df1 / df2)) / (((x*df1) / df2) + 1),
     ifelse(
       esType=="r",
-      x^2-((1-x^2)/df1),
+      x^2-((1-x^2)/df2),
                           #                        ifelse(
                           #                          esType=="Chi2",
                           #                          sqrt(x[esType=="Chi2"]/(x$df1[x$esType=="Chi2"]+1)),
@@ -45,7 +45,7 @@ esComp.statcheck <- function(# Function to compute effect sizes for a \code{stat
   ### Logical for giving adjusted effect sizes
   ){
   esComp <- ifelse(x$Statistic=="t",
-   (x$Value^2*(1 / x$df1)) / (((x$Value^2*1) / x$df1) + 1),
+   (x$Value^2*(1 / x$df2)) / (((x$Value^2*1) / x$df2) + 1),
    ifelse(
      x$Statistic=="F",
      (x$Value*(x$df1 / x$df2)) / (((x$Value*x$df1) / x$df2) + 1),
@@ -61,13 +61,13 @@ esComp.statcheck <- function(# Function to compute effect sizes for a \code{stat
    )
   #   )
 adjESComp <- ifelse(x$Statistic=="t",
-  (x$Value^2 * (1 / x$df1) - (1 / x$df1)) / (((x$Value^2*1) / x$df1) + 1),
+  (x$Value^2 * (1 / x$df2) - (1 / x$df2)) / (((x$Value^2*1) / x$df2) + 1),
   ifelse(
     x$Statistic=="F",
     (x$Value * (x$df1 / x$df2) - (x$df1 / x$df2)) / (((x$Value*x$df1) / x$df2) + 1),
     ifelse(
       x$Statistic=="r",
-      x$Value^2-((1-x$Value^2)/x$df1),
+      x$Value^2-((1-x$Value^2)/x$df2),
                           #                        ifelse(
                           #                          x$Statistic=="Chi2",
                           #                          sqrt(x$Value[x$Statistic=="Chi2"]/(x$df1[x$Statistic=="Chi2"]+1)),
