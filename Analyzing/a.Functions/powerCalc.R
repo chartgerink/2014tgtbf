@@ -183,8 +183,8 @@ powerCalc <- function(
 				else{
 					sel[[p]] <- as.matrix(as.matrix(tempMat[[p]])[,colSums(is.na(tempMat[[p]])) != nrow(tempMat[[p]])])
 					# Apply fisher test
-					fishTest[[p]] <- apply(sel[[p]],1,function(x) -sum(log(x)))
-					fishTestCompl[[p]] <- apply(sel[[p]],1,function(x) -sum(log(1-(x))))
+					fishTest[[p]] <- apply(sel[[p]],1, function(x) -sum(log(x)))
+					fishTestCompl[[p]] <- apply(sel[[p]],1, function(x) -sum(log(1-(x))))
 					# Compute fisher p value
 					pFishTest[[p]] <- pgamma(fishTest[[p]],dim(sel[[p]])[2],lower.tail=F)
 					pFishTestCompl[[p]] <- pgamma(fishTestCompl[[p]],dim(sel[[p]])[2],lower.tail=T)
