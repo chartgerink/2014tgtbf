@@ -1,36 +1,133 @@
-# Contributor(s): Chris H.J. Hartgerink
+# Code written by CHJ Hartgerink
+# Checked by: -
 
 # Change the object mypath to where you cloned the repository
-# Home Computer
 mypath <- "C:/Users/Chris/Dropbox/CJM/Masterproject/Analyzing/"
+
+##################################################
+# DO NOT EDIT PAST HERE FOR FULL REPRODUCIBILITY #
+##################################################
 setwd(mypath)
+
 # Load custom functions all at once
 customFunct <- list.files('a.Functions/')
 for(i in 1:length(customFunct)){
-  source(paste0('a.Functions/',customFunct[i]))
+  source(
+    paste0('a.Functions/', customFunct[i])
+    )
 }
 
+# Read- and prepare data
+dat <- read.table("1.Pilot study/copilot.txt", stringsAsFactors=F)
 
-###############
-# Pilot Study #
-###############
-###############################################################################
-# Preliminary stuff #
-# Importing and preparing datafile
-copilot <- read.table("1.Pilot study/copilot.txt",
-                      stringsAsFactors=F)
 # The following reordering of df1 to df2 is due to t and r values essentially
-# being F distributions, making for more parsimonious code. Copilot data was
+# being F distributions, making for more parsimonious code. dat data was
 # collected by running old version of Statcheck, hence manually done here.
-sel = copilot$Statistic == "t" | copilot$Statistic == "r"
-copilot$df2[sel] = copilot$df1[copilot$Statistic == "t" | copilot$Statistic == "r"]
-copilot$df1[sel] = NA
-copilot <- prep.statcheck(copilot)
-###############################################################################
-# Step 1 - observed effect distribution versus nil effect distribution
-# Computing unadjusted and adjusted effect size distributions under NO effect
+# REMOVE FOR FINAL
+# REMOVE FOR FINAL
+# REMOVE FOR FINAL
+sel = dat$Statistic == "t" | dat$Statistic == "r"
+dat$df2[sel] = dat$df1[dat$Statistic == "t" | dat$Statistic == "r"]
+dat$df1[sel] = NA
+
+# Adding Journal variable to pilot data, as placeholder
+# REMOVE FOR FINAL
+# REMOVE FOR FINAL
+# REMOVE FOR FINAL
+dat$Journal <- sample(1:10, 8110, replace=T)
+
+# Eliminate impossible values, make comma's into decimal points
+# and compute effect sizes
+# truncate negative adjusted effect sizes to 0
+dat <- prep.statcheck(dat)
+
+# create color vector for plotting
+colVec <- c("#40004b",
+            "#762a83",
+            "#9970ab",
+            "#c2a5cf",
+            "#e7d4e8",
+            "#f7f7f7",
+            "#d9f0d3",
+            "#a6dba0",
+            "#5aae61",
+            "#1b7837",
+            "#00441b")
+
+##########
+# Step 1 #
+# Descriptive data on the dataset
+##########
+
+# Cumulative effect size distribution (overall)
+par(mai=c(1.2,1.2,.2,.2))
+## Total
+plot(ecdf(dat$esComp), main="",
+     xlab="Effect size (eta)", ylab="Cumulative distribution", las=1,
+     cex.axis=.8, col=colVec[1], yaxs='i', xlim=c(0,1), oma=c(1,1,0,0)
+     )
+## Field
+for(i in 1:length(sort(unique(dat$Journal)))){
+  lines(ecdf(dat$esComp[dat$Journal == sort(unique(dat$Journal))[i]]), col=colVec[i+1],
+        lwd=.5)
+}
+legend(x=.75, y=.85, legend=c("Overall", sort(unique(dat$Journal))), cex=.8,
+       lty=1, col = colVec[1:11], lwd=2, bty='n')
+
+# Effect size distribution (sig vs n-sig)
+sig <- dat$Computed < .05
+nsig <- dat$Computed >= .05
+plot(ecdf(dat$esComp[sig]), main="",
+     xlab="P-value", ylab="Cumulative distribution", las=1, cex.axis=.8,
+     col=colVec[1], xlim=c(0,1), yaxs='i')
+lines(ecdf(na.omit(dat$esComp[nsig])), col=colVec[8])
+legend(x=.7,y=.85,legend=c("Significant", "Non-significant"), cex=.8,
+       lty=c(1, 1), col = c(colVec[1], colVec[8]), box.lwd=0, lwd=2, bty='n')
+
+# P-value distribution
+## Total
+plot(density(na.omit(dat$Computed)), main="",
+     xlab="P-value", ylab="Density", las=1,
+     cex.axis=.8, yaxs='i', xlim=c(0,1), col=colVec[1], xaxs='i'
+)
+## Field
+for(i in 1:length(sort(unique(dat$Journal)))){
+  lines(density(na.omit(dat$Computed[dat$Journal == sort(unique(dat$Journal))[i]])), col=colVec[i+1],
+        lwd=.5)
+}
+legend(x=.75, y=15, legend=c("Overall", sort(unique(dat$Journal))), cex=.8,
+       lty=c(1, 1), col = colVec, box.lwd=0, bty='n')
+
+# Proportion significant
+## Information readily pastable for table
+testVal <- c("t", "F", "r")
+journals <- sort(unique(dat$Journal))
+for(t in 1:length(testVal)){
+  selTest <- dat$Statistic == testVal[t]
+  for(j in 1:length(journals)){
+    selJournal <- dat$Journal == journals[j]
+    len <- length(dat$Computed[selTest & selJournal])
+    sigRes <- sum(dat$Computed[selTest & selJournal] < .05)
+    print(
+      paste0(
+        journals[j], " ", testVal[t], " ", len, "\t", sigRes, "\t", len-sigRes
+        )
+      )
+  }
+}
+
+##########
+# Step 2 #
+# Descriptive data on the dataset
+##########
+
+
+##########
+# Step 3 #
+# Observed vs null effect
+##########
 set.seed(1234)
-simNullEs <- simNullDist(copilot, n.iter=length(copilot$esComp), alpha=.05)
+simNullEs <- simNullDist(dat, n.iter=length(dat$esComp), alpha=.05)
 # Figure showing the difference between the nil effects and the observed effect distributions
 # Under non-significant test
 plot(ecdf(na.omit(simNullEs$esComp)),
@@ -45,155 +142,26 @@ plot(ecdf(na.omit(simNullEs$esComp)),
      cex.axis=.6,
      cex.lab=.7,
      col = "grey")
-lines(ecdf(na.omit(copilot$esComp)))
-lines(ecdf(na.omit(copilot$adjESComp)))
+lines(ecdf(na.omit(dat$esComp)))
+lines(ecdf(na.omit(dat$adjESComp)),col="blue")
 legend(x=.7,y=.8,legend=c(expression('H'[0]), 'Observed effects'),cex=.7,lty=c(1,1), col = c("grey","black"),box.lwd=0)
 
-# Percentages of effects
-categories <- c(.01, .06, .14)
-effPerc <- effectPercent(copilot$esComp, categories = categories)
-clip(x1=0, x2=categories[1], y1 = 0, y2 = effPerc[1])
-abline(v = categories[1], lty = 2, col = "grey")
-clip(x1=0, x2=categories[2], y1 = 0, y2 = effPerc[2])
-abline(v = categories[2], lty = 3, col = "grey")
-clip(x1=0, x2=categories[3], y1 = 0, y2 = effPerc[3])
-abline(v = categories[3], lty = 4, col = "grey")
-
 # Kolmogorov-Smirnov test
-# Moet die over de p of over de effecten?
-ks.test(simNullEs$esComp, copilot$esComp, alternative='greater')
+ks.test(simNullEs$esComp, dat$esComp, alternative='greater')
 
 
-###############################################################################
-# Step 2 - Computing (inexact) fisher test statistics
-resPilot <- FisherExTest(copilot$Computed, copilot$Source)
 
 
-###############################################################################
-# Step 3 - Power calculations fisher test for papers under different ES
+##########
+# Step 5 #
+# Test on paper level
+##########
+
+# Computing the Fisher Tests
+resPilot <- FisherExTest(dat$Computed, dat$Source)
+
 esSize <- c(seq(.01,.15,.02), seq(.2,.9,.1))
 set.seed(94438)
-powerRes <- powerCalc(copilot,effectSize=esSize,n.iter=1000,testAlpha=.1)
+powerRes <- powerCalc(dat,effectSize=esSize,n.iter=1000,testAlpha=.1)
 write.csv2(powerRes[[1]],'powerCalcFish.csv')
 write.csv2(powerRes[[2]],'powerCalcFishCompl.csv')
-
-powerFish <- read.csv2('powerCalcFish.csv')
-powerFishCompl <- read.csv2('powerCalcFishCompl.csv')
-
-fishLength <- sort(unique(powerFish$lengthRes))
-fishLengthCompl <- sort(unique(powerFishCompl$lengthRes))
-
-x <- matrix(nrow=70,ncol=16)
-select <- powerFish[,2:17]
-for(i in 1:dim(select)[2]){
-  for(l in 1:length(fishLength)){
-    x[l,i] <- mean(select[,i][powerFish$lengthRes == fishLength[l]], na.rm=T)
-  }
-}
-
-xCompl <- matrix(nrow=70,ncol=16)
-selectCompl <- powerFishCompl[,2:17]
-for(i in 1:dim(selectCompl)[2]){
-  for(l in 1:length(fishLengthCompl)){
-    xCompl[l,i] <- mean(selectCompl[,i][powerFishCompl$lengthRes == fishLengthCompl[l]], na.rm=T)
-  }
-}
-
-par(mfrow=c(2,1))
-plot(esSize, x[1,],ylim=c(0,1), xlab="Effect size (eta)", ylab="Power", main="F")
-for(i in 2:dim(x)[1]){lines(esSize, x[i,], lty=i, type="p", col=i)}
-plot(esSize, xCompl[1,],ylim=c(0,1), xlab="Effect size (eta)", ylab="Power", main='F complement')
-for(i in 2:dim(xCompl)[1]){lines(esSize, xCompl[i,], lty=i, type="p", col=i)}
-
-
-###############################################################################
-######################### Random other things #################################
-###############################################################################
-# Fisher test #
-###############
-# Descriptive statistics
-# Non-significant results per paper
-# Percent
-mean(resPilot$PercentNonSig)
-hist(resPilot$PercentNonSig,breaks=20, main="Percentages of non-significant results", xlab="Percentage")
-# Number of statistics reported
-# Overall
-mean(resPilot$CountNSig+resPilot$CountSig)
-sd(resPilot$CountNSig+resPilot$CountSig)
-# Significant
-mean(resPilot$CountSig)
-sd(resPilot$CountSig)
-# Non-significant
-mean(resPilot$CountNSig)
-sd(resPilot$CountNSig)
-
-# Results
-signSel <- resPilot$PFish < .1
-signNSel <- resPilot$PFishCompl < .1
-copilot$N <- nCalc(copilot)
-fishTestSign <- round(na.omit(cbind(resPilot$Fish[signSel],
-                                    resPilot$PFish[signSel])),3)
-fishTestComplSign <- round(na.omit(cbind(resPilot$FishCompl[signNSel],
-                                         resPilot$PFishCompl[signNSel])),3)
-# Number of signif results
-dim(fishTestSign)[1]
-# Number of signif results complement
-dim(fishTestComplSign)[1]
-
-# Computing mean of the mean sample size
-meanNSig <- NULL
-for(i in 1:length(signSel)){
-  if(is.na(signSel[i])){
-    meanNSig[i] <- NA
-  } else if(signSel[i]==TRUE){
-    meanNSig[i] <- mean(copilot$N[copilot$Source==i], na.rm=T)
-  } else {
-    meanNSig[i] <- NA  
-  }
-}
-meanNComplSig <- NULL
-for(i in 1:length(signNSel)){
-  if(is.na(signNSel[i])){
-    meanNComplSig[i] <- NA
-  } else if(signNSel[i]==TRUE){
-    meanNComplSig[i] <- mean(copilot$N[copilot$Source==i], na.rm=T)
-  } else {
-    meanNComplSig[i] <- NA  
-  }
-}
-mean(meanNSig, na.rm=T)
-mean(meanNComplSig, na.rm=T)
-
-
-
-# Simulating effect sizes under the null
-# Create vector of selected test stats
-# Create vector of equal uniform p val under alpha
-# Compute test statistic under p
-# Compute effect size under test statistic
-
-###########
-# Figures #
-###########
-# Figure 1
-# Conceptual plot of p-distributions
-png(file = "b.Figures/fig1.png", width=821, height=501)
-curve(exp(-x+.5), from=1, to=.05, add=F, xlim=c(1,.05), ylim=c(0,2.5)
-      , xlab="P-value", ylab="Density")
-curve(exp(-1.5*x+.75), from=1, to=.05, add=T)
-abline(h=1, lty=2)
-# text(.15,.9, expression(Under~H[0]), cex=.7)
-# text(.15,1.53, expression(Under~H[A]), cex=.7)
-text(.93,.85, "Upperbound", cex=.8)
-text(.12,1.21, "Lowerbound", cex=.8)
-arrows(1,.6
-       ,1,1
-       ,code=2)
-arrows(.05,1.568312
-       ,.05,1
-       ,code=2)
-legend(x = .3, y = .5
-       , legend = c(expression(Under~H[0]), expression(Under~H[A]))
-       , lty = c(2,1)
-       ,box.lwd = 0,box.col = "white",bg = "white")
-dev.off()

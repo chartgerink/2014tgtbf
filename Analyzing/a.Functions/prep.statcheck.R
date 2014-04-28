@@ -15,6 +15,7 @@ prep.statcheck <- function(# Prepare a statcheck object for analysis
 	x$df2 <- suppressWarnings(as.numeric(sub(",",".",x$df2)))
 	# Computing unadjusted and adjusted effect sizes (OBSERVED)
 	x <- cbind(x, esComp.statcheck(x))
+	x$adjESComp[x$adjESComp<0 ] <- 0
 
 	return(x)
 }
