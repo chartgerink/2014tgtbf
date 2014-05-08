@@ -15,6 +15,9 @@ simNullDist <- function(# Simulate null distribution of effect sizes
 	##seealso<<
 	##\link{statcheck}
 	# Generate vector of selected test statistics
+	sel <- x$Computed < alpha
+	x <- x[sel,]
+	
 	sampledStats <- sample(1:dim(x)[1],
 		n.iter,
 		replace = T)

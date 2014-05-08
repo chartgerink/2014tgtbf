@@ -42,8 +42,8 @@ powerCalc <- function(
 	# Simulate effects under the effect sizes for each test statist ic to determine power of the test
 	# For each paper
 	for(p in 1:length(unique(x$Source))){
-		# Select the stats for that paper
-		selectStats <- x[x$Source==p,]
+		# Select the stats for that paper and nonsignificant
+		selectStats <- x[x$Source==p & x$Computed >= alpha,]
 		# Create a matrix to put results of the pVal simulations in
 		tempMat[[p]] <- matrix(nrow=n.iter,ncol=dim(selectStats)[1])
 		lengthRes[p] <- dim(selectStats)[1]
@@ -93,7 +93,7 @@ powerCalc <- function(
 					}
 					# Here we return the p.val to state space of [0;1]
 					tempMat[[p]][,s] <- (resP-alpha)/(1-alpha)
-					print(paste("Still working, no worries, paper", p, "statistic", s, sep=" "))
+					print(paste(p, s, effectSize[es], sep=" "))
 				}
 				
 				if(sum(is.na(tempMat[[p]]))==(dim(tempMat[[p]])[1]*dim(tempMat[[p]])[2])){
@@ -173,7 +173,7 @@ powerCalc <- function(
 					}
 					# Here we return the p.val to state space of [0;1]
 					tempMat[[p]][,s] <- (resP-alpha)/(1-alpha)
-					print(paste("Still working, no worries, paper", p, "statistic", s, sep=" "))
+					print(paste(p, s, effectSize[es], sep=" "))
 				}
 				
 				if(sum(is.na(tempMat[[p]]))==(dim(tempMat[[p]])[1]*dim(tempMat[[p]])[2])){
@@ -244,7 +244,7 @@ powerCalc <- function(
 					}
 					# Here we return the p.val to state space of [0;1]
 					tempMat[[p]][,s] <- (resP-alpha)/(1-alpha)
-					print(paste("Still working, no worries, paper", p, "statistic", s, sep=" "))
+					print(paste(p, s, effectSize[es], sep=" "))
 				}
 
 				if(sum(is.na(tempMat[[p]]))==(dim(tempMat[[p]])[1]*dim(tempMat[[p]])[2])){
