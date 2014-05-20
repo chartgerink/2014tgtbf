@@ -1,4 +1,4 @@
-FisherExTest <- function(# Compute Fisher's exact test for non-significant p-values.
+FisherMethod <- function(# Compute Fisher's exact test for non-significant p-values.
 	### This function computes paper level Fisher test statistics, testing whether the distribution of non-significant p-values is uniform. Significant values indicate deviation from uniformity. 
 	### Returns both the normal Fisher test, as well as the complement test.
 	### Computations are done for p*=log(p), where p is all non-significant p-values for each identifier.
@@ -16,24 +16,24 @@ FisherExTest <- function(# Compute Fisher's exact test for non-significant p-val
 			nSigP <- (na.omit(selP[selP>alpha])-alpha)/(1-alpha)
 			SigP <- na.omit(selP[selP<=alpha])
 			if(!length(nSigP)==0){
-				FExTest <- -sum(log(nSigP))
+				FMeth <- -2*sum(log(nSigP))
 				# Compute the Fisher test statistic
-				FExTestCompl <- -sum(log(1-nSigP))
+				FMethCompl <- -2*sum(log(1-nSigP))
 				# Compute the complement Fisher test statistic
-				pFExTest <- pgamma(FExTest, length(nSigP))
-				pFExTestCompl <- pgamma(FExTestCompl, length(nSigP))
+				pFMeth <- pchisq(FMeth, 2*length(nSigP), lower.tail=F)
+				pFMethCompl <- pchisq(FMethCompl, 2*length(nSigP))
 				# Compute p-values analytically
 				} else {
-					FExTest <- NA
-					FExTestCompl <- NA
-					pFExTest <- NA
-					pFExTestCompl <- NA
+					FMeth <- NA
+					FMethCompl <- NA
+					pFMeth <- NA
+					pFMethCompl <- NA
 				}
 			Res <- rbind(Res, data.frame(
-				Fish = FExTest,
-				PFish = pFExTest,
-				FishCompl = FExTestCompl,
-				PFishCompl = pFExTestCompl,
+				Fish = FMeth,
+				PFish = pFMeth,
+				FishCompl = FMethCompl,
+				PFishCompl = pFMethCompl,
 				CountNSig = length(nSigP),
 				CountSig = length(SigP),
 				PercentNonSig = length(nSigP)/length(selP)))

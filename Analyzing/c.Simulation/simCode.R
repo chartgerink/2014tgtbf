@@ -1,23 +1,6 @@
-N <- c(25,
-       50,
-       100,
-       150)
-
-ES <- c(.00,
-        seq(.01,.99,.01))
-
-P <- c(2,
-       4,
-       7,
-       10)
-
-alpha <- .05
-alphaF <- 0.10
-n.iter <- 10000
-
-############################
-# Do not adjust after this #
-############################
+#################
+# Do not adjust #
+#################
 powe <- NULL
 power <- NULL
 chiP <- NULL
@@ -34,7 +17,7 @@ for(n in 1:length(N)){
           tCV <- qt(p=alpha, df=N[n]-1,lower.tail=F)
           
           # Step 2 - non-centrality parameter
-          f2 <- ES[es]/(1-ES[es])
+          f2 <- ES[es]^2/(1-ES[es]^2)
           ncp <- f2*N[n]
           
           # Step 3 - beta
