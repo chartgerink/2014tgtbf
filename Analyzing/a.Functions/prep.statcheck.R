@@ -5,17 +5,27 @@ prep.statcheck <- function(# Prepare a statcheck object for analysis
 	x
 	### A \code{statcheck} object.
 	){
+	
 	# Removing out of bounds p-values
-	selNA <- x$Computed>=1
+	selNA <- x$Computed>=1 & is.na(x$Computed)
 	sum(selNA[!is.na(selNA)])
 	x$Computed[selNA] <- NA
+	
 	# Replace all comma's with decimal points and make the variable numeric.
 	x$Value <- suppressWarnings(as.numeric(sub(",",".",x$Value)))
 	x$df1 <- suppressWarnings(as.numeric(sub(",",".",x$df1)))
 	x$df2 <- suppressWarnings(as.numeric(sub(",",".",x$df2)))
+	
 	# Computing unadjusted and adjusted effect sizes (OBSERVED)
 	x <- cbind(x, esComp.statcheck(x))
 	x$adjESComp[x$adjESComp<0 ] <- 0
+
+	# Turning df1 for t and r into 1.
+	x$df1[x$Statistic == "t" | x$Statistic == "r"] <- 1
+
+	# making sure dfs are numeric
+	x$df1 <- as.numeric(x$df1)
+	x$df2 <- as.numeric(x$df2)
 
 	return(x)
 }

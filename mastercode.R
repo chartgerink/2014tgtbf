@@ -44,6 +44,21 @@ dat <- prep.statcheck(dat)
 # par(mfrow=c(2,1))
 # par(mai=c(.6,1.2,.2,.2))
 
+
+# Introduction
+# Assumptions calculations below
+# 1. No QRPs
+# 2. No violations of assumptions
+# 3. Equal likelihood of null and alternative being true
+Rrate <- .5
+signifFindings <- c(.95, .97)
+powEstimate <- c(.35, .50)
+alpha <- .05
+# False positive rate
+Rrate*alpha + (1-Rrate)*powEstimate
+# False negative rate
+Rrate*(1-alpha) + (1-Rrate)*powEstimate
+
 ####### 1
 # Descriptives full dataset
 # Table
@@ -60,6 +75,7 @@ for(j in 1:length(journals)){
 }
 
 # Effect PDF
+# Add effect size proportions S-M-L?
 plot(density(dat$esComp[!is.na(dat$esComp)]),
      lty=1,
      frame.plot=T, 
@@ -73,6 +89,7 @@ plot(density(dat$esComp[!is.na(dat$esComp)]),
      cex.axis=.8,
      cex.lab=1,
      col = "black", las=1)
+abline(v=c(.1,.25,.4), lty=2, col="grey")
 
 
 ####### 2
@@ -100,12 +117,12 @@ legend(x=.65,y=.8,legend=c(expression('H'[0]), 'Observed'),
        cex=.8,lty=c(1,1),
        col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
 for(es in esR){
-x <- sqrt(dat$esComp[nsig]) <= es
-horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=.8)
-clip(0, es, 0, horiz)
-abline(h=horiz, v=es)
-clip(0, 1, 0, 1)
+  x <- sqrt(dat$esComp[nsig]) <= es
+  horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
+  text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=.8)
+  clip(0, es, 0, horiz)
+  abline(h=horiz, v=es, lty=2, col="grey")
+  clip(0, 1, 0, 1)
 }
 
 # Overall[adj]
@@ -130,7 +147,7 @@ for(es in esR){
   horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
   text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=.8)
   clip(0, es, 0, horiz)
-  abline(h=horiz, v=es)
+  abline(h=horiz, v=es, col="grey", lty=2)
   clip(0, 1, 0, 1)
 }
 
@@ -159,7 +176,7 @@ for(i in 1:length(sort(unique(dat$Journal)))){
     horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
     text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=.8)
     clip(0, es, 0, horiz)
-    abline(h=horiz, v=es)
+    abline(h=horiz, v=es, col="grey", lty=2)
     clip(0, 1, 0, 1)
   }
 }
@@ -207,41 +224,6 @@ t(get(x=names[1]))
 t(get(x=names[2]))
 t(get(x=names[3]))
 
-
-#########################################
-# Simulation plots
-par(mfrow=c(4,1))
-plot(ES, N_25[,1], type='l',main="N = 25", col=1, ylab="Power",frame.plot=T,cex.axis=.8,cex.lab=1,las=1)
-lines(ES, N_25[,2],col=2)
-lines(ES, N_25[,3],col=3)
-lines(ES, N_25[,4],col=4)
-# lines(ES, N_25[,5],col=5)
-abline(v=c(.06,.14),lty=3,col="grey")
-legend(x=.65,y=.8,legend=paste(P, "results", sep=" "),
-       cex=.8,lty=1,
-       col = 1:4,box.lwd=0 ,lwd=2, bty='n')
-
-plot(ES, N_64[,1], type='l',main="N = 100", col=1, ylab="Power",frame.plot=T,cex.axis=.8,cex.lab=1,las=1)
-lines(ES, N_64[,2],col=2)
-lines(ES, N_64[,3],col=3)
-lines(ES, N_64[,4],col=4)
-# lines(ES, N_64[,5],col=5)
-abline(v=c(.06,.14),lty=3,col="grey")
-legend(x=.65,y=.8,legend=paste(P, "results", sep=" "),
-       cex=.8,lty=1,
-       col = 1:4,box.lwd=0 ,lwd=2, bty='n')
-
-plot(ES, N_150[,1], type='l',main="N = 150", col=1, ylab="Power",frame.plot=T,cex.axis=.8,cex.lab=1,las=1)
-lines(ES, N_150[,2],col=2)
-lines(ES, N_150[,3],col=3)
-lines(ES, N_150[,4],col=4)
-# lines(ES, N_150[,5],col=5)
-abline(v=c(.06,.14),lty=3,col="grey")
-legend(x=.65,y=.8,legend=paste(P, "results", sep=" "),
-       cex=.8,lty=1,
-       col = 1:4,box.lwd=0 ,lwd=2, bty='n')
-#######################################################
-
 ##########
 # Step 5 #
 # Test on paper level
@@ -250,10 +232,124 @@ legend(x=.65,y=.8,legend=paste(P, "results", sep=" "),
 fishRes <- FisherMethod(dat$Computed, dat$Source)
 # Get vector to identify which papers are from which journal
 sourcejour <- dat$Journal[unique(dat$Source)]
-cbind(fishRes$PFish < .1, sourcejour)
+# Make vector of sig/nsig/na 
+fishDF <- data.frame(FisherP=fishRes$PFish, journal=sourcejour, kRes=fishRes$CountNSig)
+alphaF <- 0.10
+# Compute amount of papers and proportion of sig/nsig/NA Fisher Method tests
+final <- NULL
+kLen <- c(1, 2, 3, 4, 5, 10, 20)
 
-esSize <- c(0.00, seq(0.01, 0.95, 0.01))
-set.seed(94438)
-powerRes <- powerCalc(dat,effectSize=esSize,n.iter=1000,testAlpha=.1)
-write.csv2(powerRes[[1]],'powerCalcFish.csv')
-write.csv2(powerRes[[2]],'powerCalcFishCompl.csv')
+for(journals in sort(unique(dat$Journal))){
+  sel <- fishDF$journal == journals
+  
+  # Amount of papers in a journal
+  amount <- length(fishDF$FisherP[sel])
+  # Proportion of significant fisher results
+  amountSig <- sum(fishDF$FisherP[sel & !is.na(fishDF$FisherP)] < alphaF)
+  
+  for(k in 1:length(kLen)){
+    if(k == length(kLen)){
+      assign(paste0('amount', kLen[k]+1), length(fishDF$FisherP[sel & fishDF$kRes > kLen[k]]))
+      assign(paste0('amountSig', kLen[k]+1),
+             sum(fishDF$FisherP[sel & !is.na(fishDF$FisherP) & fishDF$kRes > kLen[k]] < alphaF))
+    }
+    else{
+      assign(paste0('amount', kLen[k]), length(fishDF$FisherP[sel & fishDF$kRes <= kLen[k]]))
+      if(kLen[k] == kLen[1]){
+        assign(paste0('amountSig', kLen[k]),
+             sum(fishDF$FisherP[sel & !is.na(fishDF$FisherP) & fishDF$kRes <= kLen[k]] < alphaF))}
+      else{
+        assign(paste0('amountSig', kLen[k]),
+               sum(fishDF$FisherP[sel & !is.na(fishDF$FisherP) & fishDF$kRes <= kLen[k] & fishDF$kRes > kLen[k-1]] < alphaF))
+      }
+    }
+  }
+  
+  # Amount of papers in a journal without significant results
+  countNA <- sum(is.na(fishDF$FisherP[sel]))
+  journalSet <- NULL  
+  # Writing out the results
+  for(k in 1:length(kLen)){
+    if(kLen[k] == kLen[length(kLen)]){
+      x <- get(paste0('amountSig', kLen[k]+1)) / get(paste0('amount', kLen[k]+1))
+    }
+    else{
+      x <- get(paste0('amountSig', kLen[k])) / get(paste0('amount', kLen[k]))
+    }
+    journalSet <- cbind(journalSet, x)
+  }
+  temp <- cbind(journals,
+                journalSet,
+                amountSig / amount,
+                countNA,
+                amountSig,
+                amount)
+  # This is the result that goes into the table
+  final <- rbind(final, temp)
+}
+final <- as.data.frame(final)
+names(final) <- c('journals', paste0('k ', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
+round(final, 3)
+
+# Ad hoc effect estimation
+esSize <- seq(.00, .99, .01)
+set.seed(9864)
+powerRes <- powerCalc(dat, effectSize=esSize, n.iter=1000, alphaF=.1)
+write.csv2(powerRes,'powerCalcFish.csv')
+effectDat <- read.csv2('../testing/powerCalcFish.csv')
+names(effectDat) <- c('X', 'Journal', paste0('ES ', esSize))
+
+# Compute the expected number of significant fisher tests
+# Overall
+estimatedCorr <- NULL
+expectedOverall <- apply(effectDat[,-c(1,2)], 2, sum)
+plot(x=esSize,
+     y=expectedOverall/length(unique(dat$Source)),
+     ylim=c(0,1),
+     type="l",
+     xlab="Correlation",
+     ylab="Proportion significant",
+     xaxs="i",
+     yaxs="i",
+     cex.axis=.8,
+     cex.lab=1,
+     las=1)
+
+observed <- sum(final$amountSig) / sum(final$nrpapers)
+expected <- expectedOverall / length(effectDat$Journal)
+minimum <- min(abs(observed-expected))
+horiz <- observed
+estimatedCorr <- esSize[expected-observed == minimum]
+clip(0, estimatedCorr, 0, horiz )
+abline(h=horiz, v=estimatedCorr, lty=1, col="grey")
+clip(0,1,0,1)
+
+# Per journal
+for(i in 1:length(unique(effectDat$Journal))){
+  assign(paste0('expected', unique(effectDat$Journal)[i]),
+         apply(effectDat[effectDat$Journal == unique(effectDat$Journal)[i],-c(1,2)], 2, sum))
+}
+for(i in 1:length(unique(effectDat$Journal))){
+  lines(esSize,
+        get(paste0('expected', unique(effectDat$Journal)[i]))/sum(effectDat$Journal == unique(effectDat$Journal)[i]), lty=i+1)
+}
+for(i in 1:length(unique(effectDat$Journal))){
+  observed <- final$amountSig[i] / final$nrpapers[i]
+  expected <- get(paste0('expected', unique(effectDat$Journal)[i])) / sum(effectDat$Journal == unique(effectDat$Journal)[i])
+  minimum <- min(abs(observed-expected))
+  horiz <- observed
+  estimatedCorr <- c(estimatedCorr, esSize[expected-observed == minimum])
+  clip(0, tail(estimatedCorr, 1), 0, horiz )
+  abline(h=horiz, v=tail(estimatedCorr, 1), lty=i+1, col="grey")
+}
+
+# Save the ad hoc estimations
+estimatedCorr <- data.frame(journal=c('Overall', unique(effectDat$Journal)), estimatedCorr)
+
+##########
+# Step 6 #
+# Relation k and significant Fisher tests
+##########
+zcv <- qt(alpha, df=Inf, lower.tail=F)
+k <- seq(1, 500, 1)
+plot(1-(zcv*(1/sqrt(k))), ylim=c(0,1), type="s", xlab="k", ylab="Proportion significant")

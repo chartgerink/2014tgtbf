@@ -16,24 +16,17 @@ FisherMethod <- function(# Compute Fisher's exact test for non-significant p-val
 			nSigP <- (na.omit(selP[selP>alpha])-alpha)/(1-alpha)
 			SigP <- na.omit(selP[selP<=alpha])
 			if(!length(nSigP)==0){
-				FMeth <- -2*sum(log(nSigP))
 				# Compute the Fisher test statistic
-				FMethCompl <- -2*sum(log(1-nSigP))
-				# Compute the complement Fisher test statistic
-				pFMeth <- pchisq(FMeth, 2*length(nSigP), lower.tail=F)
-				pFMethCompl <- pchisq(FMethCompl, 2*length(nSigP))
+				FMeth <- -2*sum(log(nSigP))
 				# Compute p-values analytically
+				pFMeth <- pchisq(q=FMeth, df=2*length(nSigP), lower.tail=F)
 				} else {
 					FMeth <- NA
-					FMethCompl <- NA
 					pFMeth <- NA
-					pFMethCompl <- NA
 				}
 			Res <- rbind(Res, data.frame(
 				Fish = FMeth,
 				PFish = pFMeth,
-				FishCompl = FMethCompl,
-				PFishCompl = pFMethCompl,
 				CountNSig = length(nSigP),
 				CountSig = length(SigP),
 				PercentNonSig = length(nSigP)/length(selP)))

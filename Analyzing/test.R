@@ -19,21 +19,17 @@ powerCalc <- function(
 	# Simulate effects under the effect sizes for each test statist ic to determine power of the test
 	# For each paper
 	power <- NULL
-	kPaper <- NULL
-	jourPaper <- NULL
 
 	for(p in 1:length(unique(x$Source))){
 		# Select the stats for that paper and nonsignificant
 		selectStats <- x[x$Source==p & x$Computed >= alpha & (x$Statistic == "t" | x$Statistic == "F" | x$Statistic == "r"),]
-		kPaper <- rbind(kPaper, length(selectStats$Computed))
-		jourPaper <- rbind(jourPaper, unique(selectStats$Journal)[1])
 		pow <- 0
 		powe <- NULL
 
 		# Loop through the effects
 		for(es in 1:length(effectSize)){
 			chiF <- NULL
-      		chiP <- NULL
+      chiP <- NULL
 			if(pow < .995){
 				# Step 1 - critical value
 				fCV <- qf(p=alpha, df1=selectStats$df1, df2=selectStats$df2, lower.tail=F)
@@ -75,7 +71,11 @@ powerCalc <- function(
 		}
 		power <- rbind(power, powe)
 	}
-
-	final <- cbind(jourPaper, kPaper, power)
-	return(jourPaper)
+	return(power)
 }
+
+esSize <- seq(.00, .99, .01)
+set.seed(9864)
+powerRes <- powerCalc(dat, effectSize=esSize, n.iter=1000, alphaF=.1)
+
+# dim(dat[dat$Source==1 & dat$Computed > .05,])

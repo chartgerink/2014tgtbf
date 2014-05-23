@@ -37,7 +37,7 @@ for(n in 1:length(N)){
           
           # Step 8 - computing fisher statistic
           chiF <- -2*sum(log(p0))
-          chiP[i] <- pchisq(q=chiF, df=2*length(p0),lower.tail=F)
+          chiP[i] <- pchisq(q=chiF, df=2*length(p0), lower.tail=F)
         }
         # Step 9 - computing the proportion significant
         pow <- sum(chiP < alphaF)/n.iter
