@@ -18,25 +18,13 @@ for(i in 1:length(customFunct)){
 }
 
 # Read- and prepare data
-dat <- read.table("1.Pilot study/copilot.txt", stringsAsFactors=F)
+# dat <- read.table("1.Pilot study/copilot.txt", stringsAsFactors=F)
+dat <- read.csv2("fullFile.csv", stringsAsFactors=F)
+# There are two test statistic indicators that are NA
+# Manually correct these
+dat$Statistic[is.na(dat$Statistic)] <- "F"
 
-# The following reordering of df1 to df2 is due to t and r values essentially
-# being F distributions, making for more parsimonious code. dat data was
-# collected by running old version of Statcheck, hence manually done here.
-# REMOVE FOR FINAL
-# REMOVE FOR FINAL
-# REMOVE FOR FINAL
-sel = dat$Statistic == "t" | dat$Statistic == "r"
-dat$df2[sel] = dat$df1[dat$Statistic == "t" | dat$Statistic == "r"]
-dat$df1[sel] = NA
-
-# Adding Journal variable to pilot data, as placeholder
-# REMOVE FOR FINAL
-# REMOVE FOR FINAL
-# REMOVE FOR FINAL
-dat$Journal <- sample(1:5, 8110, replace=T)
-
-# Eliminat e impossible values, make comma's into decimal points
+# Eliminate impossible values, make comma's into decimal points
 # and compute effect sizes
 # truncate negative adjusted effect sizes to 0
 dat <- prep.statcheck(dat)
@@ -49,10 +37,7 @@ dat <- prep.statcheck(dat)
 # Assumptions calculations below
 # 1. No QRPs
 # 2. No violations of assumptions
-# 3. Equal likelihood of null and alternative being true
-Rrate <- c(.25, .5)
-beta <- c(1-.35, 1-.50)
-alpha <- .05
+# I.e., alpha error control
 
 # False positive rate
 falsePos1 <- 1-((.25*.35) / ((.25*.35) + (.75*.05)))
@@ -67,14 +52,14 @@ sort(c(falseNeg1, falseNeg2))
 ####### 1
 # Descriptives full dataset
 # Table
-journals <- sort(unique(dat$Journal))
+journals <- sort(unique(dat$journals.jour.))
 for(j in 1:length(journals)){
-  selJournal <- dat$Journal == journals[j]
+  selJournal <- dat$journals.jour. == journals[j]
   len <- length(dat$Computed[selJournal & !is.na(dat$Computed)])
   sigRes <- sum(dat$Computed[selJournal & !is.na(dat$Computed)] < .05)
   print(
     paste0(
-      journals[j], " ", len, "\t", sigRes, "\t", len-sigRes
+      journals[j], "\t", len, "\t", sigRes, "\t", len-sigRes
     )
   )
 }
@@ -89,7 +74,7 @@ plot(density(dat$esComp[!is.na(dat$esComp)]),
      frame.plot=T, 
      main="",
      xlim=c(0,1),
-     ylim=c(0,4.5),
+#      ylim=c(0,4.5),
      xaxs="i",
      yaxs="i",
      xlab="Correlation",
@@ -113,6 +98,8 @@ esR <- c(.1, .25, .4)
 set.seed(1234)
 simNullEs <- simNullDist(dat, n.iter=length(dat$esComp)*3, alpha=.05)
 simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
+write.csv2(simNullEs, 'simNullEs.csv')
+# simNullEs <- read.csv2('simNullEs.csv')
 # par(mfrow=c(2,1))
 # Overall
 plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
@@ -172,16 +159,21 @@ for(es in esR){
   clip(0, 1, 0, 1)
 }
 
-# par(mfrow=c(3,2))
-par(ask=T)
-for(i in 1:length(sort(unique(dat$Journal)))){
-  sel <- dat$Journal == sort(unique(dat$Journal))[i] & nsig
+par(mfrow=c(2,4))
+par(ask=F)
+for(i in 1:length(sort(unique(dat$journals.jour.)))){
+  sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
   set.seed(i)
   simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[sel])*3, alpha=.05)
+  temp <- ks.test(simNullEs$esComp,
+                  dat$esComp[dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig],
+                  alternative="greater")
+  print((temp))
   plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
        lty=1,
        frame.plot=T, 
-       main="",
+       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p=",
+                   ifelse(temp$p.value>.001, round(temp$p.value,3), "<.001")),
        xlim=c(0,1),
        xaxs="i",
        yaxs="i",
@@ -204,26 +196,26 @@ for(i in 1:length(sort(unique(dat$Journal)))){
     clip(0, 1, 0, 1)
   }
 }
-par(ask=F)
+# par(ask=F)
 
 ######### 3
 # Kolmogorov-Smirnov test
 print("Overall")
 suppressWarnings(ks.test(simNullEs$esComp, dat$esComp[nsig], alternative='greater'))
-for(i in 1:length(sort(unique(dat$Journal)))){
-  print(sort(unique(dat$Journal))[i])
+for(i in 1:length(sort(unique(dat$journals.jour.)))){
+  print(sort(unique(dat$journals.jour.))[i])
   print(suppressWarnings(ks.test(simNullEs$esComp,
-                                 dat$esComp[dat$Journal == sort(unique(dat$Journal))[i] & nsig],
+                                 dat$esComp[dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig],
                                  alternative="greater")))
 }
 
 ######## 4
 # Simulation study
-# For actual code, see sourced file (not included for parsimony)
-set.seed(35438759)
-N <- c(summary(dat$df2)[2], # 25th percentile
-       summary(dat$df2)[3], # 50th percentile
-       summary(dat$df2)[5], # 75th percentile
+# For simulation code, see sourced file (not included for parsimony)
+
+N <- c(as.numeric(summary(dat$df2)[2]), # 25th percentile
+       as.numeric(summary(dat$df2)[3]), # 50th percentile
+       as.numeric(summary(dat$df2)[5]) # 75th percentile
 )
 
 ES <- c(.00,
@@ -234,6 +226,7 @@ P <- c(seq(1, 10, 1), seq(15, 50, 5))
 alpha <- .05
 alphaF <- 0.10
 n.iter <- 10000
+set.seed(35438759)
 source('c.Simulation/simCode.R')
 # Load all files back in
 files <- list.files('c.Simulation/')[-5]
@@ -254,9 +247,14 @@ t(get(x=names[3]))
 # Test on paper level
 ##########
 # Computing the Fisher Tests
-fishRes <- FisherMethod(dat$Computed, dat$Source)
+fishRes <- FisherMethod(dat$Computed, as.character(dat$Source))
 # Get vector to identify which papers are from which journal
-sourcejour <- dat$Journal[unique(dat$Source)]
+sourcejour <- NULL
+for(i in 1:length(unique(dat$Source))){
+  sourcejour[i] <- unique(dat$journals.jour.[dat$Source==unique(dat$Source)[i]])
+}
+
+# sourcejour <- dat$journals.jour.[unique(dat$Source)]
 # Make vector of sig/nsig/na 
 fishDF <- data.frame(FisherP=fishRes$PFish, journal=sourcejour, kRes=fishRes$CountNSig)
 alphaF <- 0.10
@@ -264,7 +262,7 @@ alphaF <- 0.10
 final <- NULL
 kLen <- c(1, 2, 3, 4, 5, 10, 20)
 
-for(journals in sort(unique(dat$Journal))){
+for(journals in sort(unique(dat$journals.jour.))){
   sel <- fishDF$journal == journals
   
   # Amount of papers in a journal
@@ -289,7 +287,7 @@ for(journals in sort(unique(dat$Journal))){
       }
     }
   }
-  
+
   # Amount of papers in a journal without significant results
   countNA <- sum(is.na(fishDF$FisherP[sel]))
   journalSet <- NULL  
@@ -313,14 +311,21 @@ for(journals in sort(unique(dat$Journal))){
   final <- rbind(final, temp)
 }
 final <- as.data.frame(final)
-names(final) <- c('journals', paste0('k ', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
-round(final, 3)
+names(final) <- c('journals', paste0('k', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
+# round(final, 3)
 
 # Ad hoc effect estimation
 esSize <- seq(.00, .99, .01)
-# set.seed(9864)
-# powerRes <- powerCalc(dat, effectSize=esSize, n.iter=1000, alphaF=.1)
-# write.csv2(powerRes,'powerCalcFish.csv')
+# These are temporarily commented out to prevent re-runnin
+powerRes <- NULL
+for(i in 1:length(sort(unique(dat$Source)))){
+  sel <- dat$Source == sort(unique(dat$Source))[i]
+  set.seed(9864+i)
+  temp <- powerCalc(dat[sel,], effectSize=esSize, n.iter=1000, alphaF=.1)
+  powerRes <- rbind(powerRes, temp)
+  print(paste(i, "of", length(sort(unique(dat$Source)))))
+}
+write.csv2(powerRes,'powerCalcFish.csv')
 # effectDat <- read.csv2('../testing/powerCalcFish.csv')
 effectDat <- read.csv2('powerCalcFish.csv')
 
@@ -402,13 +407,13 @@ for(i in 1:length(curveES)){
 }
 
 # Saturated model
-tmep <- summary(lm(datFit$yi ~ 0 + as.factor(datFit$kRes)))
+satur <- summary(lm(datFit$yi ~ 0 + as.factor(datFit$kRes)))
 
 
 plot(x=datFit$kRes, y=datFit$yi, col= 'grey')
 curve((1 - pnorm(zcv/sqrt(x), curveES[which(r2fit == max(r2fit))], 1 / sqrt(x))), from=1, to=max(datFit$kRes),
       add=T)
-lines(x=sort(unique(datFit$kRes)), y=tmep$coefficients[,1],col='red')
+lines(x=sort(unique(datFit$kRes)), y=satur$coefficients[,1],col='red')
 
 for(z in 1:length(unique(datFit$jour))){
   sel <- datFit$jour == sort(unique(datFit$jour))[z]
@@ -418,5 +423,5 @@ for(z in 1:length(unique(datFit$jour))){
 }
 
 max(r2fit)
-tmep$r.squared
+satur$r.squared
 

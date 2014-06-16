@@ -12,7 +12,7 @@ FisherMethod <- function(# Compute Fisher's exact test for non-significant p-val
 	Res <- NULL
 	for(i in 1:length(unique(id)))
 	{
-			selP <- x[id==i]
+			selP <- x[id==unique(id)[i]]
 			nSigP <- (na.omit(selP[selP>alpha])-alpha)/(1-alpha)
 			SigP <- na.omit(selP[selP<=alpha])
 			if(!length(nSigP)==0){

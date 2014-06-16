@@ -15,6 +15,7 @@ prep.statcheck <- function(# Prepare a statcheck object for analysis
 	x$Value <- suppressWarnings(as.numeric(sub(",",".",x$Value)))
 	x$df1 <- suppressWarnings(as.numeric(sub(",",".",x$df1)))
 	x$df2 <- suppressWarnings(as.numeric(sub(",",".",x$df2)))
+	x$Computed <- suppressWarnings(as.numeric(sub(",",".",x$Computed)))
 	
 	# Computing unadjusted and adjusted effect sizes (OBSERVED)
 	x <- cbind(x, esComp.statcheck(x))
@@ -26,6 +27,18 @@ prep.statcheck <- function(# Prepare a statcheck object for analysis
 	# making sure dfs are numeric
 	x$df1 <- as.numeric(x$df1)
 	x$df2 <- as.numeric(x$df2)
+
+	# correcting false correlation value reporting
+	x$esComp[x$esComp > 1 & !is.na(x$esComp)] <- NA
+
+	# Select out irrefutably wrong df reporting
+	x <- x[!x$df1==0 & !is.na(x$df1==0),]
+
+	# Select out incorrectly extracted r values
+	x <- x[!(x$Statistic=="r" & x$Value > 1),]
+
+	# select out NA computed p-values
+	x <- x[!is.na(x$Computed),]
 
 	return(x)
 }

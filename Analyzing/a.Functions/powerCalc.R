@@ -24,11 +24,11 @@ powerCalc <- function(
 
 	for(p in 1:length(unique(x$Source))){
 		# Select the stats for that paper and nonsignificant
-		selectStats <- x[x$Source==p & x$Computed >= alpha & (x$Statistic == "t" | x$Statistic == "F" | x$Statistic == "r"),]
+		selectStats <- x[x$Source==unique(x$Source)[p] & x$Computed >= alpha & (x$Statistic == "t" | x$Statistic == "F" | x$Statistic == "r"),]
 		kPaper <- rbind(kPaper, length(selectStats$Computed))
 		if(dim(selectStats)[1] == 0){
-			jourPaper <- rbind(jourPaper, unique(dat$Journal[dat$Source==p])[1])
-		} else {jourPaper <- rbind(jourPaper, unique(selectStats$Journal)[1])}
+			jourPaper <- rbind(jourPaper, unique(x$journal.jour.[x$Source==unique(x$Source)[p]])[1])
+		} else {jourPaper <- rbind(jourPaper, unique(selectStats$journal.jour.)[1])}
 		
 		pow <- 0
 		powe <- NULL
@@ -69,7 +69,7 @@ powerCalc <- function(
 				}
 				# Step 9 - compute power
 				pow <- sum(chiP < alphaF) / n.iter
-				print(paste(p, "of", length(unique(x$Source)), effectSize[es], "1-beta", pow, sep=" "))
+				# print(paste(p, "of", length(unique(x$Source)), effectSize[es], "1-beta", pow, sep=" "))
 			}
 			else{
 				pow <- 1
