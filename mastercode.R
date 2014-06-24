@@ -599,3 +599,11 @@ names(temp) <- c("Year", 'Low [Curve]', 'High [Saturated]')
 
 write.csv2(temp, '../Writing/Tables/table6.csv', row.names=F)
 
+
+# Discussion
+require(car)
+iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
+# Computes the ICC
+iccSS$Sum[2]/(iccSS$Sum[3]+iccSS$Sum[2])
+
+
