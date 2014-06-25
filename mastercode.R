@@ -606,4 +606,22 @@ iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
 # Computes the ICC
 iccSS$Sum[2]/(iccSS$Sum[3]+iccSS$Sum[2])
 
+# nonsignificant proportion p/year
+i <- 1
+sig <- NULL
+nsig <- NULL
+for(y in 1985:2013){
+  sel <- dat$years.y. == y
+  sig[i] <- sum(dat$Computed[sel] < alpha) / length(dat$Computed[sel])
+  nsig[i] <- sum(dat$Computed[sel] > alpha) / length(dat$Computed[sel])
+  
+  i <- i + 1
+}
+
+
+par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
+plot(x=1985:2013, sig, ylim=c(0,1), type='o', xlab="Year", ylab='Proportion',
+     yaxs='i', cex.axis=.8, las=1)
+lines(x=1985:2013, nsig, type='o', lty=2)
+legend(x=2007, y=0.11, legend=c("Significant", "Nonsignificant"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=.8)
 
