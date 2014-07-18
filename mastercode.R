@@ -2,7 +2,7 @@
 # Checked by: -
 
 # Change the object mypath to where you cloned the repository
-mypath <- "C:/Users/Chris/Dropbox/CJM/Masterproject/Analyzing/"
+mypath <- "C:/Users/Chris/SURFdrive/cjm/masterproject/Analyzing/"
 
 ##################################################
 # DO NOT EDIT PAST HERE FOR FULL REPRODUCIBILITY #
@@ -38,16 +38,77 @@ dat <- prep.statcheck(dat)
 # 2. No violations of assumptions
 # I.e., alpha error control
 
-# False positive rate
-falsePos1 <- 1-((.25*.35) / ((.25*.35) + (.75*.05)))
-falsePos2 <- 1-((.5*.5) / ((.5*.5) + (.5*.05)))
-sort(c(falsePos1, falsePos2))
+# False positive rates
+1-(.5*.75)/(.144*.5+.5*.75)
+1-(.25*.75)/(.144*.75+.25*.75)
 
 # False negative rate
-falseNeg1 <- ((.25*.5) / ((.25*.5) + (.75*.95)))
-falseNeg2 <- ((.5*.65) / ((.5*.65) + (.5*.95)))
-sort(c(falseNeg1, falseNeg2))
+pub <- .5
+alpha <- .05
+h0 <- .5
+h1 <- 1-h0
+pow <- .5
+beta <- 1-pow
+(pub*((1-alpha)*h0+beta*h1))/(pub*((1-alpha)*h0+beta*h1)+alpha*h0+pow*h1)
 
+(pub*((1-.144)*h0+.75*h1))
+
+
+# Figure 1
+N <- 10000
+i <- seq(1, N, 1)
+fcv <- qf(p=1-.05 ,df1=1,df2=97)
+
+# Null
+beta <- pf(q=fcv, df1=1, df2=97)
+quadpoints <- (i/(N+1))*beta
+fquad <- qf(quadpoints, df1=1, df2=97)
+temp <- 1-pf(fquad, df1=1, df2=97)
+pquad0 <- (temp-.05)/(1-.05)
+
+# Small
+beta <- pf(q=fcv, df1=1, df2=97, ncp=(.01/(1-.01))*(100+1+1))
+N <- 10000
+i <- seq(1, N, 1)
+quadpoints <- (i/(N+1))*beta
+fquad <- qf(quadpoints, df1=1, df2=97, ncp=(.01/(1-.01))*(100+1+1))
+temp <- 1-pf(fquad, df1=1, df2=97)
+pquadS <- (temp-.05)/(1-.05)
+
+# Medium
+beta <- pf(q=fcv, df1=1, df2=97, ncp=(.0625/(1-.0625))*(100+1+1))
+quadpoints <- (i/(N+1))*beta
+fquad <- qf(quadpoints, df1=1, df2=97, ncp=(.0625/(1-.0625))*(100+1+1))
+temp <- 1-pf(fquad, df1=1, df2=97)
+pquadM <- (temp-.05)/(1-.05)
+
+# Large
+beta <- pf(q=fcv, df1=1, df2=97, ncp=(.14/(1-.14))*(100+1+1))
+quadpoints <- (i/(N+1))*beta
+fquad <- qf(quadpoints, df1=1, df2=97, ncp=(.14/(1-.14))*(100+1+1))
+temp <- 1-pf(fquad, df1=1, df2=97)
+pquadL <- (temp-.05)/(1-.05)
+
+tiff(filename='../Writing/Figures/fig1.tiff', width=650, height=576)
+par(mai=c(1.2,1.2,.2,.2))
+plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', lwd=4,
+     frame.plot=T, 
+     main="",
+     #      ylim=c(0,4.5),
+     xaxs="i",
+     yaxs="i",
+     xlab="Correlation",
+     ylab = "Density",
+     cex.axis=.8,
+     cex.lab=1,
+     col = "black", las=1)
+lines(density(pquadM, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lty=3, lwd=3)
+lines(density(pquadS, kernel="gaussian", bw="SJ",adjust=.5), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lwd=2)
+abline(h=1)
+legend(x=.65,y=5,legend=c('Large effect', 'Medium effect', 'Small effect', 'No effect'),
+       cex=.8, lty=c(1,3,1,1),
+       col = "black", lwd=c(4,3,2,1), box.lwd=0 , bty='n')
+dev.off()
 
 # Selecting only the t, r and F values
 dat <- dat[dat$Statistic == 't' | dat$Statistic == 'r' | dat$Statistic == 'F',]
@@ -60,13 +121,15 @@ esR <- c(.1, .25, .4)
 journals <- sort(unique(dat$journals.jour.))
 for(j in 1:length(journals)){
   selJournal <- dat$journals.jour. == journals[j]
+  meanK <- mean(table(dat$Source[selJournal]))
   len <- length(dat$Computed[selJournal & !is.na(dat$Computed)])
   sigRes <- sum(dat$Computed[selJournal & !is.na(dat$Computed)] < .05)
-  print(
-    paste0(
-      journals[j], "\t", len, "\t", sigRes, "\t", len-sigRes
-    )
-  )
+#   print(
+#     paste0(
+#       journals[j], "\t", meanK, "\t", len, "\t", sigRes, "\t", len-sigRes
+#     )
+#   )
+  print(meanK)
 }
 
 # Effect PDF
@@ -98,10 +161,10 @@ text(x=((1-.4)/2)+.4, y=.15, labels=round(t4,2), cex=.8)
 
 ####### 2 + 3
 ## Uncomment the next four lines to re-run the simulations
-# set.seed(1234)
+set.seed(1234)
 # simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[nsig])*3, alpha=.05)
 # simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
-# write.csv2(simNullEs, 'simNullEs.csv')
+write.csv2(simNullEs, 'simNullEs.csv')
 simNullEs <- read.csv2('simNullEs.csv')
 temp <- ks.test(simNullEs$esComp,
                 dat$esComp[nsig],
@@ -253,7 +316,7 @@ alpha <- .05
 alphaF <- 0.10
 n.iter <- 10000
 set.seed(35438759)
-# source('c.Simulation/simCode.R')
+source('c.Simulation/simCode.R')
 # Load all files back in
 files <- list.files('c.Simulation/')[-5]
 if(!require(stringr)){install.packages('stringr')}
@@ -336,29 +399,47 @@ final <- as.data.frame(final)
 names(final) <- c('journals', paste0('k', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
 write.csv2(final, '../Writing/Tables/table4.csv', row.names=F)
 
+# to add the frequencies of Ks inspect tabular format of k per journal
+# Overall
+table(fishDF$kRes)
+# Per journal
+table(fishDF$kRes[fishDF$journal=="DP"])
+table(fishDF$kRes[fishDF$journal=="FP"])
+table(fishDF$kRes[fishDF$journal=="JAP"])
+table(fishDF$kRes[fishDF$journal=="JCCP"])
+table(fishDF$kRes[fishDF$journal=="JEPG"])
+table(fishDF$kRes[fishDF$journal=="JPSP"])
+table(fishDF$kRes[fishDF$journal=="PLOS"])
+table(fishDF$kRes[fishDF$journal=="PS"])
+
+
 # Ad hoc effect estimation
 esSize <- seq(.00, .99, .01)
 
 # These are temporarily commented out to prevent re-runnin
 powerRes <- NULL
 
-# # for(i in 1:length(sort(unique(dat$Source)))){
-#   sel <- dat$Source == sort(unique(dat$Source))[i]
-#   set.seed(9864+i)
-#   temp <- powerCalc(dat[sel,], effectSize=esSize, n.iter=1000, alphaF=.1)
-#   powerRes <- rbind(powerRes, temp)
-#   print(paste(i, "of", length(sort(unique(dat$Source)))))
-# }
-# write.csv2(powerRes,'powerCalcFish.csv')
+for(i in 13817:length(sort(unique(dat$Source)))){
+  if(i == 11864 | i ==13816){
+    powerRes <- rbind(powerRes, rep(0, 101))
+    print(paste(i, "of", length(sort(unique(dat$Source)))))
+  } else{
+  sel <- dat$Source == sort(unique(dat$Source))[i]
+  set.seed(9864+i)
+  temp <- powerCalc(dat[sel,], effectSize=esSize, n.iter=1000, alphaF=.1)
+  powerRes <- rbind(powerRes, temp)
+  print(paste(i, "of", length(sort(unique(dat$Source)))))}
+}
+write.csv2(powerRes,'powerCalcFish2.csv')
 
 # somehow the journal and paper identifiers were not written out
 # luckily, it was possible to manually add these
-# journal <- NULL
-# for(i in 1:length(sort(unique(dat$Source)))){
-#   sel <- dat$Source == sort(unique(dat$Source))[i]
-#   journal[i] <- unique(dat$journals.jour.[sel])
-#   print(i)
-# }
+journal <- NULL
+for(i in 1:length(sort(unique(dat$Source)))){
+  sel <- dat$Source == sort(unique(dat$Source))[i]
+  journal[i] <- unique(dat$journals.jour.[sel])
+  print(i)
+}
 # writeClipboard(journal)
 # writeClipboard(as.character(sort(unique(dat$Source))))
 # writeClipboard(as.character(years))
@@ -373,7 +454,7 @@ estimatedCorrJournal <- NULL
 expectedOverall <- apply(effectDat[,-c(1,2,3,4)], 2, sum)
 plot(x=esSize,
      y=expectedOverall / length(effectDat$Journal),
-     ylim=c(0,1),
+       ylim=c(0,1),
      type="l",
      xlab="Correlation",
      ylab="Proportion significant",
@@ -625,3 +706,17 @@ plot(x=1985:2013, sig, ylim=c(0,1), type='o', xlab="Year", ylab='Proportion',
 lines(x=1985:2013, nsig, type='o', lty=2)
 legend(x=2007, y=0.11, legend=c("Significant", "Nonsignificant"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=.8)
 
+# Table 3 power computations
+ser <- 1/sqrt(c(33, 62, 119)-3)
+rho <- .1
+zcv <- 1.282
+rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
+zrcv <- .5*log((1+rcv)/(1-rcv))
+zrho <- .5*log((1+rho)/(1-rho))
+round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
+
+rho <- .25
+rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
+zrcv <- .5*log((1+rcv)/(1-rcv))
+zrho <- .5*log((1+rho)/(1-rho))
+round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
