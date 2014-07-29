@@ -83,7 +83,7 @@ plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs
      #      ylim=c(0,4.5),
      xaxs="i",
      yaxs="i",
-     xlab="Correlation",
+     xlab="P-value",
      ylab = "Density",
      cex.axis=.8,
      cex.lab=1,
@@ -91,10 +91,10 @@ plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs
 lines(density(pquadM, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lty=3, lwd=3)
 lines(density(pquadS, kernel="gaussian", bw="SJ",adjust=.5), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lwd=2)
 abline(h=1)
-legend(x=.65,y=5,legend=c('Large effect, eta = .14',
-                          'Medium effect, eta = .06',
-                          'Small effect, eta = .01',
-                          'No effect, eta = 0'),
+legend(x=.65,y=5,legend=c('Large effect, eta2 = .14',
+                          'Medium effect, eta2 = .06',
+                          'Small effect, eta2 = .01',
+                          'No effect, eta2 = 0'),
        cex=1, lty=c(1,3,1,1),
        col = "black", lwd=c(4,3,2,1), box.lwd=0 , bty='n')
 dev.off()
@@ -138,7 +138,7 @@ plot(density(dat$esComp[!is.na(dat$esComp)]),
      #      ylim=c(0,4.5),
      xaxs="i",
      yaxs="i",
-     xlab="Correlation",
+     xlab="Correlation (eta)",
      ylab = "Density",
      cex.axis=.8,
      cex.lab=1,
@@ -192,7 +192,8 @@ par(mfrow=c(1,2), mai=c(1.2,1.2,.8,.5))
 plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
      lty=1,
      frame.plot=T, 
-     main=paste0("Unadjusted, D=", round(temp$statistic,2), ', p', ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3)))),
+     main=paste0("Unadjusted, D=", round(temp$statistic,2), ', p<2.2*10^-16'),
+#      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
      xlim=c(0,1),
      xaxs="i",
      yaxs="i",
@@ -204,7 +205,7 @@ plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
      col = "grey", las=1)
 lines(ecdf(na.omit(sqrt(dat$esComp[nsig]))))
 legend(x=.65,y=.2,legend=c(expression('H'[0]), 'Observed'),
-       cex=.8,lty=c(1,1),
+       cex=1,lty=c(1,1),
        col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
 for(es in esR){
   h0horiz <- sum(sqrt(simNullEs$esComp[!is.na(simNullEs$esComp)]) < es) / length(simNullEs$esComp[!is.na(simNullEs$esComp)])
@@ -226,7 +227,8 @@ temp <- ks.test(simNullEs$adjESComp,
 plot(ecdf(na.omit(sqrt(simNullEs$adjESComp))),
      lty=1,
      frame.plot=T, 
-     main=paste0("Adjusted, D=", round(temp$statistic,2), ', p', ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3)))),
+     main=paste0("Adjusted, D=", round(temp$statistic,2), ', p<2.2*10^-16'),
+#      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
      xlim=c(0,1),
      xaxs="i",
      yaxs="i",
@@ -238,7 +240,7 @@ plot(ecdf(na.omit(sqrt(simNullEs$adjESComp))),
      col = "grey", las=1)
 lines(ecdf(na.omit(sqrt(dat$adjESComp[nsig]))))
 legend(x=.65,y=.2,legend=c(expression('H'[0]), 'Observed'),
-       cex=.8,lty=c(1,1),
+       cex=1,lty=c(1,1),
        col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
 for(es in esR){
   h0horiz <- sum(sqrt(simNullEs$adjESComp[!is.na(simNullEs$adjESComp)]) < es) / length(simNullEs$adjESComp[!is.na(simNullEs$adjESComp)])
@@ -258,7 +260,7 @@ dev.off()
 # temp <- list(NULL)
 tiff('../Writing/Figures/fig6a.tiff', width=814, height=1289)
 par(mfrow=c(2,2), mai=c(1.2,1.2,.8,.5))
-for(i in 3){
+for(i in 1:4){
   sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
   set.seed(i)
   simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[sel])*3, alpha=.05)
@@ -266,11 +268,25 @@ for(i in 3){
                   dat$esComp[dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig],
                   alternative="greater")
   print((temp))
-  plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
+  if(i == 3){
+    plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
+         lty=1,
+         frame.plot=T, 
+         main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p=7.934*10^-6"),
+         xlim=c(0,1),
+         xaxs="i",
+         yaxs="i",
+         xlab="Correlation",
+         ylab = "Cumulative density",
+         cex.axis=.8,
+         cex.lab=1,
+         cex.main=1.5,
+         col = "grey", las=1)
+  }
+  else{plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
        lty=1,
        frame.plot=T, 
-       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p",
-                   ifelse(temp$p.value>.001, paste0('=', round(temp$p.value,3)), "<.001")),
+       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p<2.2*10^-16"),
        xlim=c(0,1),
        xaxs="i",
        yaxs="i",
@@ -279,7 +295,7 @@ for(i in 3){
        cex.axis=.8,
        cex.lab=1,
        cex.main=1.5,
-       col = "grey", las=1)
+       col = "grey", las=1)}
   lines(ecdf(sqrt(dat$esComp[sel])),
         lwd=.5)
   legend(x=.6,y=.1,legend=c(expression('H'[0]), 'Observed'),
@@ -314,8 +330,7 @@ for(i in 5:8){
   plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
        lty=1,
        frame.plot=T, 
-       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p",
-                   ifelse(temp$p.value>.001, paste0('=', round(temp$p.value,3)), "<.001")),
+       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p<2.2*10^-16"),
        xlim=c(0,1),
        xaxs="i",
        yaxs="i",
@@ -562,7 +577,7 @@ estimatedCorr <- data.frame(journal=c('Overall', as.character(sort(unique(effect
 names(estimatedCorr) <- c('Journal', 'Estimate')
 write.csv2(estimatedCorr, '../Writing/Tables/adhocestimates.csv', row.names=F)
 
-datFit <- data.frame(yi=fishDF$sig, kRes=fishDF$kRes, jour=fishDF$journal)
+datFit <- data.frame(yi=ifelse(fishDF$FisherP <.1, 1, 0), kRes=fishDF$kRes, jour=fishDF$journal)
 kMean <- NULL
 propMean <- NULL
 for(z in 1:length(unique(datFit$jour))){
@@ -590,7 +605,7 @@ for(y in 1985:2013){
   expectedOverall <- apply(effectDat[effectDat$year == y,-c(1,2,3,4)], 2, sum)
   expected <- expectedOverall / length(effectDat$Journal[effectDat$year == y])
   
-  estimatedYears[j] <- esSize[abs(observed-expected) == min(abs(observed-expected))]
+  estimatedYears[j] <- esSize[((observed-expected)^2/expected) == min(((observed-expected)^2/expected))]
   medianN[j] <- median(dat$df2[nsig & dat$years.y. == y])
   p25[j] <- summary(dat$df2[nsig & dat$years.y. == y])[2]
   p75[j] <- summary(dat$df2[nsig & dat$years.y. == y])[5]
@@ -612,17 +627,17 @@ for(y in 1985:2013){
 }
 
 tiff('../Writing/Figures/fig7.tiff', width=568, height=985)
-par(mfrow=c(3,1), mai=c(1.2,1.2,.8,.5))
+par(mfrow=c(2,1), mai=c(1.2,1.2,.8,.5))
 plot(x=1985:2013, y=estimatedYears, type='o', ylab="Correlation", xlab="Year",
      ylim=c(0,1), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
 plot(x=1985:2013, y=medianN, type='o', col="black",
      ylab="N", xlab="Year", ylim=c(0,125), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
 lines(x=1985:2013, y=p25, type='o', col='grey')
 lines(x=1985:2013, y=p75, type='o', col='grey')
-plot(x=1985:2013, y=meanK, ylim=c(1,5), type='o', col="black",
-     ylab="k", xlab="Year", cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
-lines(x=1985:2013, y=medianK, type="o", lty=2, col="black")
-legend(x=2005, y=1.75, legend=c("Mean", "Median"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=1.2)
+# plot(x=1985:2013, y=meanK, ylim=c(1,10), type='o', col="black",
+#      ylab="k", xlab="Year", cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
+# lines(x=1985:2013, y=medianK, type="o", lty=2, col="black")
+# legend(x=2005, y=1.75, legend=c("Mean", "Median"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=1.2)
 dev.off()
 
 
@@ -665,14 +680,14 @@ satur <- summary(lm(datFit$yi ~ 0 + as.factor(datFit$kRes)))
 
 tiff('../Writing/Figures/fig8.tiff', width=717, height=654)
 par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
-plot(x=datFit$kRes, y=datFit$yi, col= 'white',
-     xlab="k", ylab="Observed power", xaxs="i",
+plot(x=(datFit$kRes), y=datFit$yi, col= 'white',
+     xlab="Ln(k)", ylab="Estimated nr. of significant Fisher tests", xaxs="i",
      cex.axis=1.2,
      cex.lab=1.2,
      las=1, lwd=1)
 curve((1 - pnorm(zcv/sqrt(x), curveES[which(r2fit == max(r2fit))], 1 / sqrt(x))), from=1, to=max(datFit$kRes),
       add=T)
-lines(x=sort(unique(datFit$kRes)), y=satur$coefficients[,1],col='black', lty=2)
+lines(x=(sort(unique(datFit$kRes))), y=satur$coefficients[,1],col='black', lty=2)
 
 for(z in 1:length(unique(datFit$jour))){
   points(x=kMean[z], y=propMean[z], col="black", pch=z)
@@ -690,7 +705,7 @@ dev.off()
 
 # Observed true positive
 # Overall
-selK <- sort(unique(fishDF$kRes))[-1]
+selK <- sort(unique(fishDF$kRes))
 obstruesig <- NULL
 obspow <- NULL
 obssig <- NULL
@@ -703,9 +718,12 @@ for(k in as.numeric(selK)){
   obstruesigSat[i] <- obssig[i]*satur$coefficients[i]
   i <- i + 1
 }
+sum(obssig)*sum(obstruesig)/length(fishDF$FisherP)
+sum(obssig)*sum(obstruesigSat)/length(fishDF$FisherP)
+sum(obssig)
+
 sum(obstruesig)/length(fishDF$FisherP)
 sum(obstruesigSat)/length(fishDF$FisherP)
-sum(obssig)
 
 j <- 1
 low <- NULL
@@ -737,8 +755,20 @@ temp <- cbind(year, low, high)
 temp <- as.data.frame(temp)
 names(temp) <- c("Year", 'Low [Curve]', 'High [Saturated]')
 
-write.csv2(temp, '../Writing/Tables/table6.csv', row.names=F)
+write.csv2(temp, '../Writing/Tables/table6notused.csv', row.names=F)
 
+tiff('../Writing/Figures/fig9.tiff', width=650, height=576)
+par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
+plot(x=1985:2013, y=low, col= 'black',
+     xlab="Year", ylab="Estimated false negative rate", xaxs="i",
+     cex.axis=1,
+     cex.lab=1,
+     las=1, lwd=1,type='o',ylim=c(0,1))
+lines(x=1985:2013, y=high, ylim=c(0,1), type='o', lty=2)
+legend(x=2005,y=.1,legend=c("Lowerbound", "Upperbound"),
+       cex=.8, lty=c(1,2), 
+       box.lwd=0 ,lwd=2, bty='n', y.intersp=1)
+dev.off()
 
 # Discussion
 require(car)
