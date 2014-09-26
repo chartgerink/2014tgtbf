@@ -2,7 +2,7 @@
 # Checked by: -
 
 # Change the object mypath to where you cloned the repository
-mypath <- "C:/Users/Chris/SURFdrive/cjm/masterproject/Analyzing/"
+mypath <- "D:/files/phd/toogoodtobefalse/Analyzing/"
 
 ##################################################
 # DO NOT EDIT PAST HERE FOR FULL REPRODUCIBILITY #
@@ -21,7 +21,6 @@ for(i in 1:length(customFunct)){
 }
 
 # Read- and prepare data
-# dat <- read.table("1.Pilot study/copilot.txt", stringsAsFactors=F)
 dat <- read.csv2("fullFile.csv", stringsAsFactors=F)
 # There are two test statistic indicators that are NA
 # Manually correct these
@@ -177,10 +176,10 @@ rm(nsigtemp)
 
 ####### 2 + 3
 ## Uncomment the next four lines to re-run the simulations
-set.seed(1234)
-simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[nsig])*3, alpha=.05)
-simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
-write.csv2(simNullEs, 'simNullEs.csv')
+# set.seed(1234)
+# simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[nsig])*3, alpha=.05)
+# simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
+# write.csv2(simNullEs, 'simNullEs.csv')
 simNullEs <- read.csv2('simNullEs.csv')
 temp <- ks.test(simNullEs$esComp,
                 dat$esComp[nsig],
@@ -402,6 +401,7 @@ alphaF <- 0.10
 n.iter <- 10000
 # set.seed(35438759)
 # source('c.Simulation/simCode.R')
+
 # Load all files back in
 files <- list.files('c.Simulation/')[-5]
 if(!require(stringr)){install.packages('stringr')}
@@ -500,7 +500,18 @@ temp <- c(temp,
 final <- rbind(as.character(temp), final)
 final <- as.data.frame(final)
 names(final) <- c('journals', paste0('k', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
-write.csv2(final, '../Writing/Tables/table4.csv', row.names=F)
+# write.csv2(final, '../Writing/Tables/table4.csv', row.names=F)
+
+# Computing the number of significant Fisher results per year
+# As proportion of all papers reporting nonsignificant results
+library(plyr)
+
+fishDF$logicalP <- ifelse(fishDF$FisherP<.1, 1, 0)
+fisherYear <- ddply(fishDF, .(year), summarise, propYear=mean(logicalP, na.rm=TRUE)
+)
+
+plot(fisherYear, ylim=c(0,1), type='o')
+abline(lm(fisherYear$propYear~fisherYear$year))
 
 # to add the frequencies of Ks inspect tabular format of k per journal
 # Overall
@@ -516,128 +527,11 @@ table(fishDF$kRes[fishDF$journal=="PLOS"])
 table(fishDF$kRes[fishDF$journal=="PS"])
 
 
-# Ad hoc effect estimation
-esSize <- seq(.00, .99, .01)
-
-# These are temporarily commented out to prevent re-runnin
-# powerRes <- NULL
-# 
-# for(i in 1:length(sort(unique(dat$Source)))){
-#   if(i == 11864 | i ==13816){
-#     powerRes <- rbind(powerRes, rep(0, 101))
-#     print(paste(i, "of", length(sort(unique(dat$Source)))))
-#   } else{
-#     sel <- dat$Source == sort(unique(dat$Source))[i]
-#     set.seed(9864+i)
-#     temp <- powerCalc(dat[sel,], effectSize=esSize, n.iter=1000, alphaF=.1)
-#     powerRes <- rbind(powerRes, temp)
-#     print(paste(i, "of", length(sort(unique(dat$Source)))))}
-# }
-# write.csv2(powerRes,'powerCalcFish2.csv')
-
-# somehow the journal and paper identifiers were not written out
-# luckily, it was possible to manually add these
-journal <- NULL
-for(i in 1:length(sort(unique(dat$Source)))){
-  sel <- dat$Source == sort(unique(dat$Source))[i]
-  journal[i] <- unique(dat$journals.jour.[sel])
-  print(i)
-}
-writeClipboard(journal)
-writeClipboard(as.character(sort(unique(dat$Source))))
-writeClipboard(as.character(years))
-
-effectDat <- read.csv2('powerCalcFish2.csv')
-names(effectDat) <- c('source', 'Journal', 'k', 'year', paste0('ES', esSize))
-
-# Compute the expected number of significant fisher tests
-# Overall
-estimatedCorr <- NULL
-estimatedCorrJournal <- NULL
-expectedOverall <- apply(effectDat[,-c(1,2,3,4)], 2, sum)
-
-observed <- sum(as.numeric(as.character((final$amountSig)))) / sum(as.numeric(as.character((final$nrpapers))))
-expected <- expectedOverall / length(effectDat$Journal)
-minimum <- min(((observed-expected)^2/expected))
-estimatedCorrOverall <- esSize[((observed-expected)^2/expected) == minimum]
-
-# Per journal
-for(i in 1:length(unique(effectDat$Journal))){
-  assign(paste0('expected', sort(unique(effectDat$Journal))[i]),
-         apply(effectDat[effectDat$Journal == sort(unique(effectDat$Journal))[i],-c(1,2,3,4)], 2, sum))
-  observed <- as.numeric(as.character(final$amountSig[i])) / as.numeric(as.character(final$nrpapers[i]))
-  expected <- get(paste0('expected', sort(unique(effectDat$Journal))[i])) / sum(effectDat$Journal == sort(unique(effectDat$Journal))[i])
-  minimum <- min(((observed-expected)^2/expected))
-  horiz <- observed
-  estimatedCorrJournal[i] <- esSize[((observed-expected)^2/expected) == minimum]
-}
-
-# Save the ad hoc estimations
-estimatedCorr <- data.frame(journal=c('Overall', as.character(sort(unique(effectDat$Journal)))), c(estimatedCorrOverall, estimatedCorrJournal))
-names(estimatedCorr) <- c('Journal', 'Estimate')
-write.csv2(estimatedCorr, '../Writing/Tables/adhocestimates.csv', row.names=F)
-
-datFit <- data.frame(yi=ifelse(fishDF$FisherP <.1, 1, 0), kRes=fishDF$kRes, jour=fishDF$journal)
-kMean <- NULL
-propMean <- NULL
-for(z in 1:length(unique(datFit$jour))){
-  sel <- datFit$jour == sort(unique(datFit$jour))[z]
-  kMean[z] <- mean(datFit$kRes[sel])
-  propMean[z] <- mean(datFit$yi[sel], na.rm=T)
-}
-max(propMean)-min(propMean)
-max(kMean)-min(kMean)
-
-
-# Estimations p/year with some information of N and K over time
-j <- 1
-estimatedYears <- NULL
-medianN <- NULL
-medianK <- NULL
-meanK <- NULL
-p25 <- NULL
-p75 <- NULL
-for(y in 1985:2013){
-  i <- 2
-  sely <- effectDat$year == y
-  temp <- ifelse(fishDF$FisherP[fishDF$year==y] > alphaF | is.na(fishDF$FisherP[fishDF$year==y]), 0, 1)
-  observed <- mean(temp)
-  expectedOverall <- apply(effectDat[effectDat$year == y,-c(1,2,3,4)], 2, sum)
-  expected <- expectedOverall / length(effectDat$Journal[effectDat$year == y])
-  
-  estimatedYears[j] <- esSize[((observed-expected)^2/expected) == min(((observed-expected)^2/expected))]
-  medianN[j] <- median(dat$df2[nsig & dat$years.y. == y])
-  p25[j] <- summary(dat$df2[nsig & dat$years.y. == y])[2]
-  p75[j] <- summary(dat$df2[nsig & dat$years.y. == y])[5]
-  medianK[j] <- median(fishDF$kRes[fishDF$year == y])
-  meanK[j] <- mean(fishDF$kRes[fishDF$year == y])
-  #   for(journals in as.character(sort(unique(effectDat$Journal)))){
-  #     seljour <- effectDat$Journal == journals
-  #     temp <- ifelse(fishDF$FisherP[fishDF$year==y & fishDF$journal == journals] > alphaF | is.na(fishDF$FisherP[fishDF$year==y & fishDF$journal == journals]), 0, 1)
-  #     observed <- mean(temp)
-  #     expectedOverall <- apply(effectDat[effectDat$year == y & fishDF$journal == journals,-c(1,2,3,4)], 2, sum)
-  #     expected <- expectedOverall / length(effectDat$Journal[effectDat$year == y & effectDat$journal == journals])
-  # # #     
-  # # #     
-  #     estimatedYears[i, j] <- unique(esSize[abs(observed-expected) == min(abs(observed-expected))])[1]
-  #     i <- i + 1
-  #   }
-  #   
-  j <- j + 1
-}
-
 tiff('../Writing/Figures/fig7.tiff', width=568, height=985)
-par(mfrow=c(2,1), mai=c(1.2,1.2,.8,.5))
-plot(x=1985:2013, y=estimatedYears, type='o', ylab="Correlation", xlab="Year",
-     ylim=c(0,1), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
 plot(x=1985:2013, y=medianN, type='o', col="black",
      ylab="N", xlab="Year", ylim=c(0,125), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
 lines(x=1985:2013, y=p25, type='o', col='grey')
 lines(x=1985:2013, y=p75, type='o', col='grey')
-# plot(x=1985:2013, y=meanK, ylim=c(1,10), type='o', col="black",
-#      ylab="k", xlab="Year", cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
-# lines(x=1985:2013, y=medianK, type="o", lty=2, col="black")
-# legend(x=2005, y=1.75, legend=c("Mean", "Median"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=1.2)
 dev.off()
 
 
