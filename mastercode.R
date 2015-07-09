@@ -2,7 +2,7 @@
 # Checked by: -
 
 # Change the object mypath to where you cloned the repository
-mypath <- "D:/files/phd/toogoodtobefalse/Analyzing/"
+mypath <- "C:/Users/chjh/Dropbox/projects/2014toogoodtobefalse/Analyzing/"
 
 ##################################################
 # DO NOT EDIT PAST HERE FOR FULL REPRODUCIBILITY #
@@ -126,7 +126,7 @@ for(j in 1:length(journals)){
 
 # Effect PDF
 # par(mfrow=c(2,1))
-tiff(file='../Writing//Figures/fig3.tiff',width=896, height=580)
+tiff(file='../Writing//Figures/fig3.tiff',width=1200, height=900)
 par(mai=c(1.2,1.2,.2,.2))
 
 plot(density(dat$esComp[!is.na(dat$esComp)]),
@@ -164,11 +164,12 @@ for(y in 1985:2013){
   
   i <- i + 1
 }
-tiff(file='../Writing/Figures/fig4.tiff', width=706, height=575)
+tiff(file='../Writing/Figures/fig4.tiff', width=1200, height=900)
 par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
 plot(x=1985:2013, nsigtemp, ylim=c(0,.4), type='o', xlab="Year", ylab='Proportion nonsignificant',
      yaxs='i', cex.axis=1, las=1)
 lines(x=1985:2013, nsigtemp, type='o', lty=2)
+abline(lm(nsigtemp~c(1985:2013)))
 # legend(x=2007, y=0.11, legend=c("Significant", "Nonsignificant"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=.8)
 dev.off()
 rm(nsigtemp)
@@ -192,7 +193,7 @@ plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
      lty=1,
      frame.plot=T, 
      main=paste0("Unadjusted, D=", round(temp$statistic,2), ', p<2.2*10^-16'),
-#      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
+     #      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
      xlim=c(0,1),
      xaxs="i",
      yaxs="i",
@@ -227,7 +228,7 @@ plot(ecdf(na.omit(sqrt(simNullEs$adjESComp))),
      lty=1,
      frame.plot=T, 
      main=paste0("Adjusted, D=", round(temp$statistic,2), ', p<2.2*10^-16'),
-#      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
+     #      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
      xlim=c(0,1),
      xaxs="i",
      yaxs="i",
@@ -283,18 +284,18 @@ for(i in 1:4){
          col = "grey", las=1)
   }
   else{plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
-       lty=1,
-       frame.plot=T, 
-       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p<2.2*10^-16"),
-       xlim=c(0,1),
-       xaxs="i",
-       yaxs="i",
-       xlab="Correlation",
-       ylab = "Cumulative density",
-       cex.axis=.8,
-       cex.lab=1,
-       cex.main=1.5,
-       col = "grey", las=1)}
+            lty=1,
+            frame.plot=T, 
+            main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p<2.2*10^-16"),
+            xlim=c(0,1),
+            xaxs="i",
+            yaxs="i",
+            xlab="Correlation",
+            ylab = "Cumulative density",
+            cex.axis=.8,
+            cex.lab=1,
+            cex.main=1.5,
+            col = "grey", las=1)}
   lines(ecdf(sqrt(dat$esComp[sel])),
         lwd=.5)
   legend(x=.6,y=.1,legend=c(expression('H'[0]), 'Observed'),
@@ -510,10 +511,27 @@ fishDF$logicalP <- ifelse(fishDF$FisherP<.1, 1, 0)
 fisherYear <- ddply(fishDF, .(year), summarise, propYear=mean(logicalP, na.rm=TRUE)
 )
 
-plot(fisherYear, ylim=c(0,1), type='o')
-abline(lm(fisherYear$propYear~fisherYear$year))
+knsYear <- ddply(fishDF, .(year), summarise, kYear=mean(kRes, na.rm=TRUE)
+)
 
-# to add the frequencies of Ks inspect tabular format of k per journal
+library(ggplot2)
+
+mydf <- data.frame(x = fisherYear$year,
+                   y = fisherYear$propYear,
+                   count = knsYear$kYear)
+
+ggplot(mydf, aes(x = x, y = y)) + geom_point(aes(size = count)) + ylim(0, 1) + geom_smooth(method="lm") +
+  xlab("Year") + ylab("Proportion significant Fisher results")
+
+ggsave(filename = 'fisheryears.png', plot = last_plot(), width = 21, height = 9)
+
+# tiff('../Writing/Figures/falseneg.tiff', width=1200, height=900)
+# plot(fisherYear, ylim=c(0,1), type='o', ylab="Proportion",
+#      main="False negatives", xlab="Year")
+# abline(lm(fisherYear$propYear~fisherYear$year))
+# dev.off()
+# symbols(x=fisherYear$year, y=fisherYear$propYear, circles=knsYear$kYear, inches=1/4, ann=F, bg="steelblue2", fg=NULL, ylim=c(0,1))
+  # to add the frequencies of Ks inspect tabular format of k per journal
 # Overall
 table(fishDF$kRes)
 # Per journal
@@ -526,12 +544,25 @@ table(fishDF$kRes[fishDF$journal=="JPSP"])
 table(fishDF$kRes[fishDF$journal=="PLOS"])
 table(fishDF$kRes[fishDF$journal=="PS"])
 
+medianN <- NULL
+p25 <- NULL
+p75 <- NULL
+i <- 1
+for(y in 1985:2013){
+  temp <- summary(dat$df2[dat$years.y. == y])
+  
+  medianN[i] <- temp[3]
+  p25[i] <- temp[2]
+  p75[i] <- temp[5]
+  
+  i <- i + 1
+}
 
-tiff('../Writing/Figures/fig7.tiff', width=568, height=985)
+tiff('../Writing/Figures/fig7.tiff', width=1200, height=900)
 plot(x=1985:2013, y=medianN, type='o', col="black",
-     ylab="N", xlab="Year", ylim=c(0,125), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
-lines(x=1985:2013, y=p25, type='o', col='grey')
-lines(x=1985:2013, y=p75, type='o', col='grey')
+     ylab="N", xlab="Year", ylim=c(0,80), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
+# lines(x=1985:2013, y=p25, type='o', col='grey')
+# lines(x=1985:2013, y=p75, type='o', col='grey')
 dev.off()
 
 
@@ -589,8 +620,8 @@ for(z in 1:length(unique(datFit$jour))){
 
 abline(h=nullmod$coefficients[1], col="grey", lty=1)
 legend(x=3,y=.25,legend=c(as.character(sort(unique(datFit$jour))), "Null, R2=0",
-                           paste0("Curve, R2=", round(summary(curvemod)$r.squared,3)),
-                           paste0("Saturated, R2=", round(satur$r.squared,3))),
+                          paste0("Curve, R2=", round(summary(curvemod)$r.squared,3)),
+                          paste0("Saturated, R2=", round(satur$r.squared,3))),
        cex=.8, pch=c(1:8, NA, NA, NA), lty=c(rep(NA, 8), 1, 1, 2), 
        col=c(rep("black",8),"grey", rep("black", 2)),
        #        col = c("black", rep("blue", 5), rep("red", 3))
@@ -664,6 +695,65 @@ legend(x=2005,y=.1,legend=c("Lowerbound", "Upperbound"),
        box.lwd=0 ,lwd=2, bty='n', y.intersp=1)
 dev.off()
 
+#########
+# Cases #
+#########
+setwd("D:/files/phd/toogoodtobefalse/JPSP/selected")
+
+library(statcheck)
+
+cases <- checkHTMLdir("D:/files/phd/toogoodtobefalse/JPSP/selected")
+cases <- cases[,1:10]
+write.csv2(cases, 'cases2.csv')
+
+FisherMethod(cases$Computed, id = cases$Source, alpha=.05)
+
+callanN <- c(64,
+             218,
+             83,
+             190,
+             59,
+             367
+             #              ,85,
+             #              142,
+             #              139,
+             #              77+103
+)
+sum(callanN)
+mean(callanN)
+
+jungN <- c(151,
+           152,
+           304,
+           132,
+           294,
+           193,
+           198,
+           329,
+           419,
+           835,
+           1065)
+sum(jungN)
+mean(jungN)
+
+#################
+# Gender effect #
+#################
+setwd("D:/files/phd/toogoodtobefalse/")
+
+genderdat <- read.csv2('datafilegender100.csv')
+# For consistency, select only t F and r values
+genderdat <- genderdat[genderdat$Statistic == 't' | genderdat$Statistic == 'F' | genderdat$Statistic == 'r',]
+gendersample <- genderdat[genderdat$gender == TRUE,]
+
+set.seed(123)
+sampled <- sample(x = unique(gendersample$Source), size = 100, replace = FALSE)
+
+genderrandomsample <- gendersample[gendersample$Source %in% sampled,]
+
+write.csv2(genderrandomsample,
+           'genderrandomselect.csv')
+
 # Discussion
 require(car)
 iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
@@ -685,3 +775,25 @@ rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
 zrcv <- .5*log((1+rcv)/(1-rcv))
 zrho <- .5*log((1+rho)/(1-rho))
 round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
+
+
+# 
+# chjh
+# mva 
+# jmw
+# 
+# set1 <- as.dataframe(chjh = chjh[1:90], jmw = jmw)
+# cohen.kappa(rbind(set1$chjh, set1$jmw), w=NULL,n.obs=NULL,alpha=.05)  
+# set1 <- as.dataframe(chjh = chjh[91:180], mva = mva)
+# cohen.kappa(rbind(set1$chjh, set1$mva), w=NULL,n.obs=NULL,alpha=.05) 
+
+# save <- NULL
+# 
+# for(journal in unique(fishDF$journal)){
+#   sel <- fishDF$kRes > 0 & fishDF$journal == journal
+#   
+#   save <- c(save, mean(fishDF$kRes[sel]))
+#   
+# }
+# 
+# cbind(as.character(unique(fishDF$journal)), save)

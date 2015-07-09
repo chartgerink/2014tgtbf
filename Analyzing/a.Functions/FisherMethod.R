@@ -1,3 +1,7 @@
+# Written by CHJ Hartgerink
+# The Fisher method applied to test for deviation from uniformity
+# In NONSIGNIFICANT P-values
+
 FisherMethod <- function(# Compute Fisher's exact test for non-significant p-values.
 	### This function computes paper level Fisher test statistics, testing whether the distribution of non-significant p-values is uniform. Significant values indicate deviation from uniformity. 
 	### Returns both the normal Fisher test, as well as the complement test.
