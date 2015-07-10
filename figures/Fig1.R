@@ -1,4 +1,4 @@
-setwd("D:/Dropbox/projects/2014tgtbf")
+setwd("D:/Dropbox/projects/2014tgtbf/figures")
 
 # Figure 1
 N <- 10000
@@ -35,7 +35,7 @@ fquad <- qf(quadpoints, df1=1, df2=97, ncp=(.14/(1-.14))*(100+1+1))
 temp <- 1-pf(fquad, df1=1, df2=97)
 pquadL <- (temp-.05)/(1-.05)
 
-pdf('figures/Fig1.pdf', width=7, height=8)
+pdf('Fig1.pdf', width=7, height=8)
 par(mai=c(1,1,.2,.2))
 plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', lwd=4,
      frame.plot=T, 
@@ -47,7 +47,7 @@ plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs
      ylab = "Density",
      cex.axis=.8,
      cex.lab=1,
-     col = "black", las=1)
+     col = "black", las=1, bty = 'L')
 lines(density(pquadM, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lty=3, lwd=3)
 lines(density(pquadS, kernel="gaussian", bw="SJ",adjust=.5), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lwd=2)
 abline(h=1)
