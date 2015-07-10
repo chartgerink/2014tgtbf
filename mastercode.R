@@ -18,15 +18,27 @@ for(i in 1:length(customFunct)){
 }
 
 # Read- and prepare data
-dat <- read.csv2("data/statcheck_full_anonymized.csv", stringsAsFactors=F)[-1]
+dat <- read.csv2("data/statcheck_full_anonymized.csv", stringsAsFactors=F, dec = ",", sep = ";")[-1]
+
 # There are two test statistic indicators that are NA
 # Manually correct these
 dat$Statistic[is.na(dat$Statistic)] <- "F"
 
-# Eliminate impossible values, make comma's into decimal points
-# and compute effect sizes
-# truncate negative adjusted effect sizes to 0
-dat <- prep.statcheck(dat)
+# Computing unadjusted and adjusted effect sizes (OBSERVED)
+dat <- cbind(dat, esComp.statcheck(dat))
+dat$adjESComp[dat$adjESComp < 0] <- 0
+
+# Turning df1 for t and r into 1.
+dat$df1[dat$Statistic == "t" | dat$Statistic == "r"] <- 1
+
+# Select out incorrectly exttracted r values
+dat <- dat[!(dat$Statistic=="r" & dat$Value > 1),]
+
+# Select out irrefutably wrong df reporting
+dat <- dat[!dat$df1 == 0,]
+
+# select out NA computed p-values
+dat <- dat[!is.na(dat$Computed),]
 
 # Selecting only the t, r and F values
 dat <- dat[dat$Statistic == 't' | dat$Statistic == 'r' | dat$Statistic == 'F',]
