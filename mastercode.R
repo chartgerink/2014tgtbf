@@ -8,6 +8,8 @@
 # COMMENT SOME PARTS                             #
 ##################################################
 setwd(choose.dir())
+if(!require(latex2exp)){install.packages('latex2exp')}
+library(latex2exp)
 
 # Load custom functions all at once
 customFunct <- list.files('functions/')
@@ -47,7 +49,10 @@ esR <- c(.1, .25, .4)
 alpha = .05
 alphaF = .1
 
-# Introduction
+################
+# Introduction #
+################
+
 # Figure 1
 N <- 10000
 i <- seq(1, N, 1)
@@ -83,8 +88,8 @@ fquad <- qf(quadpoints, df1=1, df2=97, ncp=(.14/(1-.14))*(100+1+1))
 temp <- 1-pf(fquad, df1=1, df2=97)
 pquadL <- (temp-.05)/(1-.05)
 
-tiff(filename='../Writing/Figures/fig1.tiff', width=650, height=576)
-par(mai=c(1.2,1.2,.2,.2))
+pdf('figures/Fig1.pdf', width=7, height=8)
+par(mai=c(1,1,.2,.2))
 plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', lwd=4,
      frame.plot=T, 
      main="",
@@ -99,15 +104,18 @@ plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs
 lines(density(pquadM, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lty=3, lwd=3)
 lines(density(pquadS, kernel="gaussian", bw="SJ",adjust=.5), xlim=c(0.01,1), xaxs='i', ylim=c(0,10), lwd=2)
 abline(h=1)
-legend(x=.65,y=5,legend=c('Large effect, eta2 = .14',
-                          'Medium effect, eta2 = .06',
-                          'Small effect, eta2 = .01',
-                          'No effect, eta2 = 0'),
+legend(x=.6,y=5,legend=c(latex2exp('Large effect, $\\eta^2=.14$'),
+                          latex2exp('Medium effect, $\\eta^2=.06$'),
+                          latex2exp('Small effect, $\\eta^2=.01$'),
+                          latex2exp('No effect, $\\eta^2=0$')),
        cex=1, lty=c(1,3,1,1),
        col = "black", lwd=c(4,3,2,1), box.lwd=0 , bty='n')
 dev.off()
 
-# Method
+##########
+# Method #
+##########
+
 # Simulation sample sizes
 c(as.numeric(summary(dat$df2)[2]), # 25th percentile
   as.numeric(summary(dat$df2)[3]), # 50th percentile
