@@ -1,27 +1,24 @@
 # Code written by CHJ Hartgerink
 # Checked by: -
 
-# Change the object mypath to where you cloned the repository
-mypath <- "C:/Users/chjh/Dropbox/projects/2014toogoodtobefalse/Analyzing/"
-
 ##################################################
 # DO NOT EDIT PAST HERE FOR FULL REPRODUCIBILITY #
 # SIMULATIONS ARE NOT RE-RUN DUE TO RUNTIME      #
 # IF YOU'D LIKE TO RE-RUN YOU WILL HAVE TO UN-   #
 # COMMENT SOME PARTS                             #
 ##################################################
-setwd(mypath)
+setwd(choose.dir())
 
 # Load custom functions all at once
-customFunct <- list.files('a.Functions/')
+customFunct <- list.files('functions/')
 for(i in 1:length(customFunct)){
   source(
-    paste0('a.Functions/', customFunct[i])
+    paste0('functions/', customFunct[i])
   )
 }
 
 # Read- and prepare data
-dat <- read.csv2("fullFile.csv", stringsAsFactors=F)
+dat <- read.csv2("data/statcheck_full_anonymized.csv", stringsAsFactors=F)[-1]
 # There are two test statistic indicators that are NA
 # Manually correct these
 dat$Statistic[is.na(dat$Statistic)] <- "F"
