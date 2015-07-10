@@ -1,5 +1,24 @@
+if(!require(psych)){install.packages('psych')}
 library(psych)
+# setwd(choose.dir())
+setwd('D:/Dropbox/projects/2014tgtbf')
 
-x <- read.csv("C:/Users/chjh/Dropbox/projects/2014toogoodtobefalse/gender/gendercoded cleaned.csv")
+source('functions//FisherMethod.R')
 
-cohen.kappa(x = x[,4:6])
+gend <- read.csv("gender/gendercoded cleaned and discussed.csv",
+                 header = TRUE, sep = ";", dec = ".")
+
+cohen.kappa(gend[, 6:8])
+
+# 1 = null expected
+# 2 = effect expected
+# 3 = no expectation
+table(gend$significance, gend$final_code)
+
+for(sig in unique(gend$significance)){
+  for(code in unique(gend$final_code[!is.na(gend$final_code)])){
+    sel <- gend$significance == sig & gend$final_code == code
+  
+    print(FisherMethod(x = gend$Computed[sel], id = 1))
+  }
+}
