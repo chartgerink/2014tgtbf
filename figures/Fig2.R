@@ -1,19 +1,69 @@
 # Adapted from code provided by Michèle Nuijten
 
 setwd("D:/Dropbox/projects/2014tgtbf/figures")
+library(ggplot2)
+library(latex2exp)
 
-pdf("Fig2.pdf", width = 7, height = 4)
+# pdf("Fig2.pdf", width = 7, height = 4)
+setEPS()
+postscript("whatever.eps") # change file name
+par(mar = c(1, 2, 3, 4))
+plot(dnorm(seq(-2, 2, .001), 0, .5), type = 'l',
+     bty = 'n', xaxt = 'n', yaxt = 'n')
+lines(dnorm(seq(-2, 2, .001), 1, .5))
 
+dev.off
+
+
+
+par(mar = c(0, 0, 0, 0))
 par(xpd = FALSE)
 
-N   <- 35          # number of observations per group 
-df  <- 2 * N-2       # degrees of freedom
-d   <- .5          # standardized mean difference
-ncp <- d * sqrt(N/2) # non-centrality parameter
-pub <- .5          # proportion of non-significant findings published
-
 # distribution H0
-H0 <- rt(n = 1e7, df = df, ncp = 0)
+h0 <- rnorm(n = 1e7, 0, 1)
+density.h0 <- density(h0)
+q40.h0 <- quantile(h0, .4)
+q95.h0 <- quantile(h0, .95)
+q100.h0 <- quantile(h0, 1)
+
+dd.h0 <- with(density.h0, data.frame(x, y))
+
+# distribution h1
+h1 <- rnorm(n = 1e7, 2, 1)
+density.h1 <- density(h1)
+q0.h1 <- quantile(h1, 0)
+q35.h1 <- quantile(h1, 0.375)
+
+dd.h1 <- with(density.h1, data.frame(x, y))
+
+# Plot h0
+ggplot(dd.h0, aes(x, y)) +
+  geom_line() + 
+  geom_line(data = dd.h1, aes(x, y)) + 
+  geom_ribbon(data = subset(dd.h0, x > q95.h0 & x < q100.h0), 
+              aes(ymax = y), ymin = 0,
+              fill = "black", colour = NA, alpha = 0.5) +
+  geom_ribbon(data = subset(dd.h1, x > q0.h1 & x < q35.h1), 
+              aes(ymax = y), ymin = 0,
+              fill = "red", colour = NA, alpha = 0.5) + 
+  geom_ribbon(data = subset(dd.h0, x > q40.h0 & x < q100.h0), 
+              aes(ymax = y), ymin = 0,
+              fill = "grey", colour = NA, alpha = 0.5) + 
+  theme_bw()
+  annotate("text", label = latex2exp('\\beta'),
+            x = 0, y = .1)
+annotate("text", label = "plot mpg vs. wt", x = 2, y = 15, size = 8, colour = "red")
+
+
+
+  theme(
+    plot.background = element_blank()
+    ,panel.grid.major = element_blank()
+    ,panel.grid.minor = element_blank()
+    ,panel.border = element_blank(),
+    axis.line = element_blank()
+  )
+
 
 # plot distribution under H0
 plot(density(H0),
@@ -37,7 +87,7 @@ dens <- density(draws)
 
 max <- max(H0 + ncp)
 
-x1 <- min(which(dens$x >= cv))  
+x1 <- min(which(dens$x <= cv))  
 x2 <- max(which(dens$x <  max))
 
 with(dens, polygon(x=c(x[c(x1,x1:x2,x2)]), y= c(0, y[x1:x2], 0), 
