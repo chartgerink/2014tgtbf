@@ -61,7 +61,9 @@ c(as.numeric(summary(dat$df2)[2]), # 25th percentile
 # Number of papers
 length(unique(dat$Source))
 
-# Results
+###########
+# Results #
+########### 
 # Descriptives dataset
 # Table
 journals <- sort(unique(dat$journals.jour.))
@@ -78,142 +80,113 @@ for(j in 1:length(journals)){
   #   print(meanK)
 }
 
-# Effect PDF
-# par(mfrow=c(2,1))
-tiff(file='../Writing//Figures/fig3.tiff',width=1200, height=900)
-par(mai=c(1.2,1.2,.2,.2))
-
-plot(density(dat$esComp[!is.na(dat$esComp)]),
-     lty=1,
-     frame.plot=T, 
-     main="",
-     xlim=c(0,1),
-     #      ylim=c(0,4.5),
-     xaxs="i",
-     yaxs="i",
-     xlab="Correlation (eta)",
-     ylab = "Density",
-     cex.axis=.8,
-     cex.lab=1,
-     col = "black", las=1)
-abline(v=c(.1,.25,.4), lty=2, col="grey")
-t1 <- sum(dat$esComp[!is.na(dat$esComp)] < .1) / length(dat$esComp[!is.na(dat$esComp)])
-t2 <- sum(dat$esComp[!is.na(dat$esComp)] >= .1 & dat$esComp[!is.na(dat$esComp)] < .25) / length(dat$esComp[!is.na(dat$esComp)])
-t3 <- sum(dat$esComp[!is.na(dat$esComp)] >= .25 & dat$esComp[!is.na(dat$esComp)] < .4) / length(dat$esComp[!is.na(dat$esComp)])
-t4 <- sum(dat$esComp[!is.na(dat$esComp)] >= .4) / length(dat$esComp[!is.na(dat$esComp)])
-text(x=.1/2, y=.15, labels=round(t1,2), cex=1)
-text(x=((.25-.1)/2)+.1, y=.15, labels=round(t2,2), cex=1)
-text(x=((.4-.25)/2)+.25, y=.15, labels=round(t3,2), cex=1)
-text(x=((1-.4)/2)+.4, y=.15, labels=round(t4,2), cex=1)
-dev.off()
-
 # nonsignificant proportion p/year
 i <- 1
 sig <- NULL
 nsigtemp <- NULL
+kval <- NULL
+
 for(y in 1985:2013){
   sel <- dat$years.y. == y
   sig[i] <- sum(dat$Computed[sel] < alpha) / length(dat$Computed[sel])
   nsigtemp[i] <- sum(dat$Computed[sel] > alpha) / length(dat$Computed[sel])
-  
+  kval[i] <- median(table(dat$Source[sel])) / sum(table(dat$Source[sel]))
   i <- i + 1
 }
-tiff(file='../Writing/Figures/fig4.tiff', width=1200, height=900)
-par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
-plot(x=1985:2013, nsigtemp, ylim=c(0,.4), type='o', xlab="Year", ylab='Proportion nonsignificant',
-     yaxs='i', cex.axis=1, las=1)
-lines(x=1985:2013, nsigtemp, type='o', lty=2)
-abline(lm(nsigtemp~c(1985:2013)))
-# legend(x=2007, y=0.11, legend=c("Significant", "Nonsignificant"), lty=c(1,2), lwd=2, box.lwd=0,bty='n', cex=.8)
-dev.off()
-rm(nsigtemp)
 
+save(nsigtemp, file = 'figures/Fig4')
+rm(nsigtemp)
 
 ####### 2 + 3
 ## Uncomment the next four lines to re-run the simulations
-# set.seed(1234)
-# simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[nsig])*3, alpha=.05)
-# simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
-# write.csv2(simNullEs, 'simNullEs.csv')
-simNullEs <- read.csv2('simNullEs.csv')
+set.seed(1234)
+simNullEs <- simNullDist(dat, n.iter = length(dat$esComp[nsig]) * 3, alpha = .05)
+simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
+write.table(simNullEs, 'archive/simNullEs.csv', sep = ";", dec = ".")
+
+simNullEs <- read.table('archive/simNullEs.csv', sep = ";", dec = ".")
 temp <- ks.test(simNullEs$esComp,
                 dat$esComp[nsig],
                 alternative="greater")
 
-tiff('../Writing/Figures/fig5.tiff', width=1124, height=580)
-par(mfrow=c(1,2), mai=c(1.2,1.2,.8,.5))
+pdf('figures/Fig5.pdf', width=11, height=7)
+par(mfrow = c(1,2), mai = c(1.2,1.2,.8,.5))
 # Overall
 plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
-     lty=1,
-     frame.plot=T, 
-     main=paste0("Unadjusted, D=", round(temp$statistic,2), ', p<2.2*10^-16'),
-     #      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
-     xlim=c(0,1),
-     xaxs="i",
-     yaxs="i",
-     xlab="Correlation",
+     lty = 1,
+     frame.plot = T, 
+     main = latex2exp(
+       sprintf(
+         "Unadjusted, $D=%s,p<2.2\\times 10^{-16}$", round(temp$statistic,2))),
+     xlim = c(0, 1),
+     xaxs = "i",
+     yaxs = "i",
+     xlab = latex2exp("Correlation ($\\eta$)"),
      ylab = "Cumulative density",
      cex.axis=.8,
      cex.lab=1,
      cex.main=1.5,
      col = "grey", las=1)
 lines(ecdf(na.omit(sqrt(dat$esComp[nsig]))))
-legend(x=.65,y=.2,legend=c(expression('H'[0]), 'Observed'),
-       cex=1,lty=c(1,1),
-       col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
+legend(x = .6, y = .2, legend = c(latex2exp("$H_0$"), 'Observed'),
+       cex = 1, lty = c(1, 1),
+       col = c("grey", "black", 2),
+       box.lwd = 0, lwd = 2, bty = 'n')
 for(es in esR){
   h0horiz <- sum(sqrt(simNullEs$esComp[!is.na(simNullEs$esComp)]) < es) / length(simNullEs$esComp[!is.na(simNullEs$esComp)])
   clip(es, 1, 0, h0horiz)
-  abline(h=h0horiz, v=es, lty=2, col="grey")
+  abline(h = h0horiz, v = es, lty = 2, col = "grey")
   clip(0, 1, 0, 1)
-  text(x=.9, y=h0horiz-.02, labels=round(h0horiz, 2), cex=1, col='darkgrey')
+  text(x = .9, y = h0horiz - .02, labels = round(h0horiz, 2), cex = 1, col = 'darkgrey')
   x <- sqrt(dat$esComp[nsig]) <= es
   horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-  text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=1)
+  text(x = .05, y = horiz + .02, labels = round(horiz, 2), cex = 1)
   clip(0, es, 0, horiz)
-  abline(h=horiz, v=es, lty=2, col="black")
+  abline(h = horiz, v = es, lty = 2, col = "black")
   clip(0, 1, 0, 1)
 }
+
 temp <- ks.test(simNullEs$adjESComp,
                 dat$adjESComp[nsig],
                 alternative="greater")
 # Overall[adj]
 plot(ecdf(na.omit(sqrt(simNullEs$adjESComp))),
-     lty=1,
-     frame.plot=T, 
-     main=paste0("Adjusted, D=", round(temp$statistic,2), ', p<2.2*10^-16'),
-     #      , ifelse(temp$p.value<.001, "<.001", paste0('=',round(temp$p.value,3))))
-     xlim=c(0,1),
-     xaxs="i",
-     yaxs="i",
-     xlab="Correlation",
+     lty = 1,
+     frame.plot = T, 
+     main = latex2exp(
+       sprintf(
+         "Adjusted, $D=%s,p<2.2\\times 10^{-16}$", round(temp$statistic,2))),
+     xlim = c(0, 1),
+     xaxs = "i",
+     yaxs = "i",
+     xlab = latex2exp("Correlation ($\\eta$)"),
      ylab = "Cumulative density",
-     cex.axis=.8,
-     cex.lab=1,
-     cex.main=1.5,
-     col = "grey", las=1)
+     cex.axis = .8,
+     cex.lab = 1,
+     cex.main = 1.5,
+     col = "grey", las = 1)
 lines(ecdf(na.omit(sqrt(dat$adjESComp[nsig]))))
-legend(x=.65,y=.2,legend=c(expression('H'[0]), 'Observed'),
-       cex=1,lty=c(1,1),
-       col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
+legend(x = .6,y = .2,legend = c(latex2exp("$H_0$"), 'Observed'),
+       cex = 1,lty = c(1, 1),
+       col = c("grey", "black", 2), box.lwd = 0, lwd = 2, bty = 'n')
 for(es in esR){
   h0horiz <- sum(sqrt(simNullEs$adjESComp[!is.na(simNullEs$adjESComp)]) < es) / length(simNullEs$adjESComp[!is.na(simNullEs$adjESComp)])
   clip(es, 1, 0, h0horiz)
-  abline(h=h0horiz, v=es, lty=2, col="grey")
+  abline(h = h0horiz, v = es, lty = 2, col = "grey")
   clip(0, 1, 0, 1)
-  text(x=.9, y=h0horiz-.02, labels=round(h0horiz, 2), cex=1, col='darkgrey')
+  text(x = .9, y = h0horiz - .02, labels = round(h0horiz, 2), cex = 1, col = 'darkgrey')
   x <- sqrt(dat$adjESComp[nsig]) <= es
   horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-  text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=1)
+  text(x = .05, y = horiz + .02, labels = round(horiz, 2), cex = 1)
   clip(0, es, 0, horiz)
-  abline(h=horiz, v=es, col="black", lty=2)
+  abline(h = horiz, v = es, col = "black", lty = 2)
   clip(0, 1, 0, 1)
 }
 dev.off()
 
-# temp <- list(NULL)
-tiff('../Writing/Figures/fig6a.tiff', width=814, height=1289)
-par(mfrow=c(2,2), mai=c(1.2,1.2,.8,.5))
+pdf('figures/Fig6.pdf', onefile = TRUE, width = 11, height = 11)
+par(mfrow = c(2, 2), mai = c(1.2, 1.2, .8, .5))
+
 for(i in 1:4){
   sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
   set.seed(i)
@@ -252,7 +225,7 @@ for(i in 1:4){
             col = "grey", las=1)}
   lines(ecdf(sqrt(dat$esComp[sel])),
         lwd=.5)
-  legend(x=.6,y=.1,legend=c(expression('H'[0]), 'Observed'),
+  legend(x=.6,y=.2,legend=c(expression('H'[0]), 'Observed'),
          cex=1.2,lty=c(1,1),
          col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
   for(es in esR){
@@ -269,10 +242,7 @@ for(i in 1:4){
     clip(0, 1, 0, 1)
   }
 }
-dev.off()
 
-tiff('../Writing/Figures/fig6b.tiff', width=814, height=1289)
-par(mfrow=c(2,2), mai=c(1.2,1.2,.8,.5))
 for(i in 5:8){
   sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
   set.seed(i)
@@ -296,7 +266,7 @@ for(i in 5:8){
        col = "grey", las=1)
   lines(ecdf(sqrt(dat$esComp[sel])),
         lwd=.5)
-  legend(x=.6,y=.1,legend=c(expression('H'[0]), 'Observed'),
+  legend(x=.6,y=.2,legend=c(expression('H'[0]), 'Observed'),
          cex=1.2,lty=c(1,1),
          col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
   for(es in esR){
@@ -314,6 +284,7 @@ for(i in 5:8){
   }
 }
 dev.off()
+
 
 tempjour <- NULL
 negjour <- NULL
