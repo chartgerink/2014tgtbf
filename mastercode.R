@@ -10,6 +10,8 @@
 setwd(choose.dir())
 if(!require(latex2exp)){install.packages('latex2exp')}
 library(latex2exp)
+library(plyr)
+library(ggplot2)
 
 # Load custom functions all at once
 customFunct <- list.files('functions/')
@@ -104,188 +106,6 @@ simNullEs <- simNullDist(dat, n.iter = length(dat$esComp[nsig]) * 3, alpha = .05
 simNullEs$adjESComp[simNullEs$adjESComp < 0] <- 0
 write.table(simNullEs, 'archive/simNullEs.csv', sep = ";", dec = ".")
 
-simNullEs <- read.table('archive/simNullEs.csv', sep = ";", dec = ".")
-temp <- ks.test(simNullEs$esComp,
-                dat$esComp[nsig],
-                alternative="greater")
-
-pdf('figures/Fig5.pdf', width=11, height=7)
-par(mfrow = c(1,2), mai = c(1.2,1.2,.8,.5))
-# Overall
-plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
-     lty = 1,
-     frame.plot = T, 
-     main = latex2exp(
-       sprintf(
-         "Unadjusted, $D=%s,p<2.2\\times 10^{-16}$", round(temp$statistic,2))),
-     xlim = c(0, 1),
-     xaxs = "i",
-     yaxs = "i",
-     xlab = latex2exp("Correlation ($\\eta$)"),
-     ylab = "Cumulative density",
-     cex.axis=.8,
-     cex.lab=1,
-     cex.main=1.5,
-     col = "grey", las=1)
-lines(ecdf(na.omit(sqrt(dat$esComp[nsig]))))
-legend(x = .6, y = .2, legend = c(latex2exp("$H_0$"), 'Observed'),
-       cex = 1, lty = c(1, 1),
-       col = c("grey", "black", 2),
-       box.lwd = 0, lwd = 2, bty = 'n')
-for(es in esR){
-  h0horiz <- sum(sqrt(simNullEs$esComp[!is.na(simNullEs$esComp)]) < es) / length(simNullEs$esComp[!is.na(simNullEs$esComp)])
-  clip(es, 1, 0, h0horiz)
-  abline(h = h0horiz, v = es, lty = 2, col = "grey")
-  clip(0, 1, 0, 1)
-  text(x = .9, y = h0horiz - .02, labels = round(h0horiz, 2), cex = 1, col = 'darkgrey')
-  x <- sqrt(dat$esComp[nsig]) <= es
-  horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-  text(x = .05, y = horiz + .02, labels = round(horiz, 2), cex = 1)
-  clip(0, es, 0, horiz)
-  abline(h = horiz, v = es, lty = 2, col = "black")
-  clip(0, 1, 0, 1)
-}
-
-temp <- ks.test(simNullEs$adjESComp,
-                dat$adjESComp[nsig],
-                alternative="greater")
-# Overall[adj]
-plot(ecdf(na.omit(sqrt(simNullEs$adjESComp))),
-     lty = 1,
-     frame.plot = T, 
-     main = latex2exp(
-       sprintf(
-         "Adjusted, $D=%s,p<2.2\\times 10^{-16}$", round(temp$statistic,2))),
-     xlim = c(0, 1),
-     xaxs = "i",
-     yaxs = "i",
-     xlab = latex2exp("Correlation ($\\eta$)"),
-     ylab = "Cumulative density",
-     cex.axis = .8,
-     cex.lab = 1,
-     cex.main = 1.5,
-     col = "grey", las = 1)
-lines(ecdf(na.omit(sqrt(dat$adjESComp[nsig]))))
-legend(x = .6,y = .2,legend = c(latex2exp("$H_0$"), 'Observed'),
-       cex = 1,lty = c(1, 1),
-       col = c("grey", "black", 2), box.lwd = 0, lwd = 2, bty = 'n')
-for(es in esR){
-  h0horiz <- sum(sqrt(simNullEs$adjESComp[!is.na(simNullEs$adjESComp)]) < es) / length(simNullEs$adjESComp[!is.na(simNullEs$adjESComp)])
-  clip(es, 1, 0, h0horiz)
-  abline(h = h0horiz, v = es, lty = 2, col = "grey")
-  clip(0, 1, 0, 1)
-  text(x = .9, y = h0horiz - .02, labels = round(h0horiz, 2), cex = 1, col = 'darkgrey')
-  x <- sqrt(dat$adjESComp[nsig]) <= es
-  horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-  text(x = .05, y = horiz + .02, labels = round(horiz, 2), cex = 1)
-  clip(0, es, 0, horiz)
-  abline(h = horiz, v = es, col = "black", lty = 2)
-  clip(0, 1, 0, 1)
-}
-dev.off()
-
-pdf('figures/Fig6.pdf', onefile = TRUE, width = 11, height = 11)
-par(mfrow = c(2, 2), mai = c(1.2, 1.2, .8, .5))
-
-for(i in 1:4){
-  sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
-  set.seed(i)
-  simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[sel])*3, alpha=.05)
-  temp <- ks.test(simNullEs$esComp,
-                  dat$esComp[dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig],
-                  alternative="greater")
-  print((temp))
-  if(i == 3){
-    plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
-         lty=1,
-         frame.plot=T, 
-         main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p=7.934*10^-6"),
-         xlim=c(0,1),
-         xaxs="i",
-         yaxs="i",
-         xlab="Correlation",
-         ylab = "Cumulative density",
-         cex.axis=.8,
-         cex.lab=1,
-         cex.main=1.5,
-         col = "grey", las=1)
-  }
-  else{plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
-            lty=1,
-            frame.plot=T, 
-            main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p<2.2*10^-16"),
-            xlim=c(0,1),
-            xaxs="i",
-            yaxs="i",
-            xlab="Correlation",
-            ylab = "Cumulative density",
-            cex.axis=.8,
-            cex.lab=1,
-            cex.main=1.5,
-            col = "grey", las=1)}
-  lines(ecdf(sqrt(dat$esComp[sel])),
-        lwd=.5)
-  legend(x=.6,y=.2,legend=c(expression('H'[0]), 'Observed'),
-         cex=1.2,lty=c(1,1),
-         col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
-  for(es in esR){
-    h0horiz <- sum(sqrt(simNullEs$esComp[!is.na(simNullEs$esComp)]) < es) / length(simNullEs$esComp[!is.na(simNullEs$esComp)])
-    clip(es, 1, 0, h0horiz)
-    abline(h=h0horiz, v=es, lty=2, col="grey")
-    clip(0,1,0,1)
-    x <- sqrt(dat$esComp[sel]) <= es
-    horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-    text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=1.2)
-    text(x=.9, y=h0horiz-.02, labels=round(h0horiz, 2), cex=1.2, col='darkgrey')
-    clip(0, es, 0, horiz)
-    abline(h=horiz, v=es, col="black", lty=2)
-    clip(0, 1, 0, 1)
-  }
-}
-
-for(i in 5:8){
-  sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
-  set.seed(i)
-  simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[sel])*3, alpha=.05)
-  temp <- ks.test(simNullEs$esComp,
-                  dat$esComp[dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig],
-                  alternative="greater")
-  print((temp))
-  plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
-       lty=1,
-       frame.plot=T, 
-       main=paste0(sort(unique(dat$journals.jour.))[i], ", D=", round(temp$statistic,3),", p<2.2*10^-16"),
-       xlim=c(0,1),
-       xaxs="i",
-       yaxs="i",
-       xlab="Correlation",
-       ylab = "Cumulative density",
-       cex.axis=.8,
-       cex.lab=1,
-       cex.main=1.5,
-       col = "grey", las=1)
-  lines(ecdf(sqrt(dat$esComp[sel])),
-        lwd=.5)
-  legend(x=.6,y=.2,legend=c(expression('H'[0]), 'Observed'),
-         cex=1.2,lty=c(1,1),
-         col = c("grey","black",2),box.lwd=0 ,lwd=2, bty='n')
-  for(es in esR){
-    h0horiz <- sum(sqrt(simNullEs$esComp[!is.na(simNullEs$esComp)]) < es) / length(simNullEs$esComp[!is.na(simNullEs$esComp)])
-    clip(es, 1, 0, h0horiz)
-    abline(h=h0horiz, v=es, lty=2, col="grey")
-    clip(0,1,0,1)
-    x <- sqrt(dat$esComp[sel]) <= es
-    horiz <- sum(x[!is.na(x)]) / length(x[!is.na(x)])
-    text(x=.05, y=horiz+.02, labels=round(horiz, 2), cex=1.2)
-    text(x=.9, y=h0horiz-.02, labels=round(h0horiz, 2), cex=1.2, col='darkgrey')
-    clip(0, es, 0, horiz)
-    abline(h=horiz, v=es, col="black", lty=2)
-    clip(0, 1, 0, 1)
-  }
-}
-dev.off()
-
-
 tempjour <- NULL
 negjour <- NULL
 kjour <- NULL
@@ -293,7 +113,7 @@ tempk <- NULL
 for(i in 1:length(sort(unique(dat$journals.jour.[nsig])))){
   tempjour[i] <- sort(unique(dat$journals.jour.[nsig]))[i]
   
-  sel <- nsig & dat$journals.jour.==sort(unique(dat$journals.jour.[nsig]))[i]
+  sel <- nsig & dat$journals.jour. == sort(unique(dat$journals.jour.[nsig]))[i]
   
   # Number of papers containing negative results
   negjour[i] <- length(unique(dat$Source[sel]))
@@ -307,7 +127,7 @@ for(i in 1:length(sort(unique(dat$journals.jour.[nsig])))){
   kjour[i] <- median(tempk)
   print(i)
 }
-write.csv2(cbind(tempjour, negjour, kjour), 'checks.csv')
+write.csv2(cbind(tempjour, negjour, kjour), 'archive/checks.csv')
 
 # Simulation study
 # For simulation code, see sourced file (not included for parsimony)
@@ -325,15 +145,18 @@ P <- c(seq(1, 10, 1), seq(15, 50, 5))
 alpha <- .05
 alphaF <- 0.10
 n.iter <- 10000
-# set.seed(35438759)
-# source('c.Simulation/simCode.R')
+
+# Sourcing the simulation code
+# NOTE: runs upon source and can take a while
+set.seed(35438759)
+source('archive/simCode.R')
 
 # Load all files back in
-files <- list.files('c.Simulation/')[-5]
+files <- list.files('archive/')[grepl("N_", list.files('archive/'))]
 if(!require(stringr)){install.packages('stringr')}
 names <- str_sub(files,start=1L, end=-5L)
 for(i in 1:length(files)){
-  assign(x=names[i],read.csv2(paste0('c.Simulation/', files[i])))
+  assign(x=names[i],read.csv2(paste0('archive/', files[i])))
   assign(x=names[i],t(get(x=names[i])[,-1]))
 }
 
@@ -426,37 +249,8 @@ temp <- c(temp,
 final <- rbind(as.character(temp), final)
 final <- as.data.frame(final)
 names(final) <- c('journals', paste0('k', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
-# write.csv2(final, '../Writing/Tables/table4.csv', row.names=F)
+write.csv2(final, 'writing/tables/table4.csv', row.names=F)
 
-# Computing the number of significant Fisher results per year
-# As proportion of all papers reporting nonsignificant results
-library(plyr)
-
-fishDF$logicalP <- ifelse(fishDF$FisherP<.1, 1, 0)
-fisherYear <- ddply(fishDF, .(year), summarise, propYear=mean(logicalP, na.rm=TRUE)
-)
-
-knsYear <- ddply(fishDF, .(year), summarise, kYear=mean(kRes, na.rm=TRUE)
-)
-
-library(ggplot2)
-
-mydf <- data.frame(x = fisherYear$year,
-                   y = fisherYear$propYear,
-                   count = knsYear$kYear)
-
-ggplot(mydf, aes(x = x, y = y)) + geom_point(aes(size = count)) + ylim(0, 1) + geom_smooth(method="lm") +
-  xlab("Year") + ylab("Proportion significant Fisher results")
-
-ggsave(filename = 'fisheryears.png', plot = last_plot(), width = 21, height = 9)
-
-# tiff('../Writing/Figures/falseneg.tiff', width=1200, height=900)
-# plot(fisherYear, ylim=c(0,1), type='o', ylab="Proportion",
-#      main="False negatives", xlab="Year")
-# abline(lm(fisherYear$propYear~fisherYear$year))
-# dev.off()
-# symbols(x=fisherYear$year, y=fisherYear$propYear, circles=knsYear$kYear, inches=1/4, ann=F, bg="steelblue2", fg=NULL, ylim=c(0,1))
-  # to add the frequencies of Ks inspect tabular format of k per journal
 # Overall
 table(fishDF$kRes)
 # Per journal
@@ -468,6 +262,31 @@ table(fishDF$kRes[fishDF$journal=="JEPG"])
 table(fishDF$kRes[fishDF$journal=="JPSP"])
 table(fishDF$kRes[fishDF$journal=="PLOS"])
 table(fishDF$kRes[fishDF$journal=="PS"])
+
+# Computing the number of significant Fisher results per year
+# As proportion of all papers reporting nonsignificant results
+fishDF$logicalP <- ifelse(fishDF$FisherP<.1, 1, 0)
+fisherYear <- ddply(fishDF, .(year), summarise, propYear=mean(logicalP, na.rm=TRUE))
+
+knsYear <- ddply(fishDF, .(year), summarise, kYear=mean(kRes, na.rm=TRUE))
+
+mydf <- data.frame(x = fisherYear$year,
+                   y = fisherYear$propYear,
+                   count = knsYear$kYear)
+
+ggplot(mydf, aes(x = x, y = y)) + geom_point(aes(size = count)) + ylim(0, 1) + geom_smooth(method="lm") +
+  xlab("Year") + ylab("Proportion significant Fisher results")
+
+ggsave(filename = 'figures/fisheryears.png', plot = last_plot(), width = 21, height = 9)
+
+# tiff('../Writing/Figures/falseneg.tiff', width=1200, height=900)
+# plot(fisherYear, ylim=c(0,1), type='o', ylab="Proportion",
+#      main="False negatives", xlab="Year")
+# abline(lm(fisherYear$propYear~fisherYear$year))
+# dev.off()
+# symbols(x=fisherYear$year, y=fisherYear$propYear, circles=knsYear$kYear, inches=1/4, ann=F, bg="steelblue2", fg=NULL, ylim=c(0,1))
+# to add the frequencies of Ks inspect tabular format of k per journal
+
 
 medianN <- NULL
 p25 <- NULL
@@ -483,11 +302,11 @@ for(y in 1985:2013){
   i <- i + 1
 }
 
-tiff('../Writing/Figures/fig7.tiff', width=1200, height=900)
+tiff('figures/fig7.tiff', width=1200, height=900)
 plot(x=1985:2013, y=medianN, type='o', col="black",
-     ylab="N", xlab="Year", ylim=c(0,80), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
-# lines(x=1985:2013, y=p25, type='o', col='grey')
-# lines(x=1985:2013, y=p75, type='o', col='grey')
+     ylab="N", xlab="Year", ylim=c(0,150), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
+lines(x=1985:2013, y=p25, type='o', col='grey')
+lines(x=1985:2013, y=p75, type='o', col='grey')
 dev.off()
 
 
@@ -620,47 +439,6 @@ legend(x=2005,y=.1,legend=c("Lowerbound", "Upperbound"),
        box.lwd=0 ,lwd=2, bty='n', y.intersp=1)
 dev.off()
 
-#########
-# Cases #
-#########
-setwd("D:/files/phd/toogoodtobefalse/JPSP/selected")
-
-library(statcheck)
-
-cases <- checkHTMLdir("D:/files/phd/toogoodtobefalse/JPSP/selected")
-cases <- cases[,1:10]
-write.csv2(cases, 'cases2.csv')
-
-FisherMethod(cases$Computed, id = cases$Source, alpha=.05)
-
-callanN <- c(64,
-             218,
-             83,
-             190,
-             59,
-             367
-             #              ,85,
-             #              142,
-             #              139,
-             #              77+103
-)
-sum(callanN)
-mean(callanN)
-
-jungN <- c(151,
-           152,
-           304,
-           132,
-           294,
-           193,
-           198,
-           329,
-           419,
-           835,
-           1065)
-sum(jungN)
-mean(jungN)
-
 #################
 # Gender effect #
 #################
@@ -722,3 +500,35 @@ round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
 # }
 # 
 # cbind(as.character(unique(fishDF$journal)), save)
+
+
+############################
+# Gender effect coded data #
+############################
+gend <- read.csv2('gender/gendercoded cleaned and discussed.csv', sep = ";", dec = ".", header = TRUE)
+
+# 1 = null expected
+# 2 = effect expected
+# 3 = no expectation
+table(gend$significance, gend$final_code)
+
+options(scipen = 5, digits = 8)
+# sel <- gend$significance == "significant" & gend$final_code == "no expectation"
+for(sig in unique(gend$significance)){
+  for(code in unique(gend$final_code[!is.na(gend$final_code)])){
+    sel <- gend$significance == sig & gend$final_code == code
+    
+    if(sig == "significant"){
+      temp <- gend$Computed[sel & gend$Computed <= .05] / .05
+      pstar <- temp[!is.na(temp)]
+      x$CountNSig <- length(pstar)
+      x$Fish <- -2*sum(log(pstar))
+      x$PFish <- pchisq(x$Fish, df = 2 * length(pstar), lower.tail = FALSE)
+    }
+    if(sig == "nonsignificant"){
+      x <- (FisherMethod(x = gend$Computed[sel & gend$Computed > .05], id = 1, alpha = 0.05))
+    }
+        
+    cat(sprintf("For %s %s, k = %s, chi2 = %s, p = %s\n", sig, code, x$CountNSig, x$Fish, x$PFish))
+  }
+}

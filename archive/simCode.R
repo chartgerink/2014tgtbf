@@ -53,7 +53,7 @@ for(n in 1:length(N)){
     }
     power <- rbind(power, powe)
   }
-  filepath <- paste0('c.Simulation/N_',
+  filepath <- paste0('archive/N_',
                      N[n],
                      '.csv')
   write.csv2(power,

@@ -2,13 +2,41 @@
 # NOT figures folder
 setwd(choose.dir())
 
+# Load data
+# Read- and prepare data
+dat <- read.csv2("data/statcheck_full_anonymized.csv", stringsAsFactors=F, dec = ",", sep = ";")[-1]
+
+# There are two test statistic indicators that are NA
+# Manually correct these
+dat$Statistic[is.na(dat$Statistic)] <- "F"
+
+# Computing unadjusted and adjusted effect sizes (OBSERVED)
+dat <- cbind(dat, esComp.statcheck(dat))
+dat$adjESComp[dat$adjESComp < 0] <- 0
+
+# Turning df1 for t and r into 1.
+dat$df1[dat$Statistic == "t" | dat$Statistic == "r"] <- 1
+
+# Select out incorrectly exttracted r values
+dat <- dat[!(dat$Statistic=="r" & dat$Value > 1),]
+
+# Select out irrefutably wrong df reporting
+dat <- dat[!dat$df1 == 0,]
+
+# select out NA computed p-values
+dat <- dat[!is.na(dat$Computed),]
+
+# Selecting only the t, r and F values
+dat <- dat[dat$Statistic == 't' | dat$Statistic == 'r' | dat$Statistic == 'F',]
+nsig <- dat$Computed >= .05
+
 pdf('figures/S1Fig.pdf', onefile = TRUE, width = 11, height = 11)
 par(mfrow = c(2, 2), mai = c(1.2, 1.2, .8, .5))
 
 for(i in 1:4){
   sel <- dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig
   set.seed(i)
-  simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[sel])*3, alpha=.05)
+  simNullEs <- simNullDist(dat, n.iter=length(dat$esComp[sel])*3, alpha = .05)
   temp <- ks.test(simNullEs$esComp,
                   dat$esComp[dat$journals.jour. == sort(unique(dat$journals.jour.))[i] & nsig],
                   alternative="greater")
