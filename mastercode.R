@@ -190,6 +190,8 @@ for(i in 1:length(sort(unique(dat$Source)))){
 
 # Make vector of sig/nsig/na 
 fishDF <- data.frame(FisherP=fishRes$PFish, journal=sourcejour, kRes=fishRes$CountNSig, year=years)
+save(fishDF, file = 'figures/Fig6')
+
 alphaF <- 0.10
 # Compute amount of papers and proportion of sig/nsig/NA Fisher Method tests
 final <- NULL
@@ -263,51 +265,36 @@ table(fishDF$kRes[fishDF$journal=="JPSP"])
 table(fishDF$kRes[fishDF$journal=="PLOS"])
 table(fishDF$kRes[fishDF$journal=="PS"])
 
-# Computing the number of significant Fisher results per year
-# As proportion of all papers reporting nonsignificant results
-fishDF$logicalP <- ifelse(fishDF$FisherP<.1, 1, 0)
-fisherYear <- ddply(fishDF, .(year), summarise, propYear=mean(logicalP, na.rm=TRUE))
+############################
+# Gender effect evaluated #
+############################
+gend <- read.csv2('gender/gendercoded cleaned and discussed.csv', sep = ";", dec = ".", header = TRUE)
 
-knsYear <- ddply(fishDF, .(year), summarise, kYear=mean(kRes, na.rm=TRUE))
+# 1 = null expected
+# 2 = effect expected
+# 3 = no expectation
+table(gend$significance, gend$final_code)
 
-mydf <- data.frame(x = fisherYear$year,
-                   y = fisherYear$propYear,
-                   count = knsYear$kYear)
-
-ggplot(mydf, aes(x = x, y = y)) + geom_point(aes(size = count)) + ylim(0, 1) + geom_smooth(method="lm") +
-  xlab("Year") + ylab("Proportion significant Fisher results")
-
-ggsave(filename = 'figures/fisheryears.png', plot = last_plot(), width = 21, height = 9)
-
-# tiff('../Writing/Figures/falseneg.tiff', width=1200, height=900)
-# plot(fisherYear, ylim=c(0,1), type='o', ylab="Proportion",
-#      main="False negatives", xlab="Year")
-# abline(lm(fisherYear$propYear~fisherYear$year))
-# dev.off()
-# symbols(x=fisherYear$year, y=fisherYear$propYear, circles=knsYear$kYear, inches=1/4, ann=F, bg="steelblue2", fg=NULL, ylim=c(0,1))
-# to add the frequencies of Ks inspect tabular format of k per journal
-
-
-medianN <- NULL
-p25 <- NULL
-p75 <- NULL
-i <- 1
-for(y in 1985:2013){
-  temp <- summary(dat$df2[dat$years.y. == y])
-  
-  medianN[i] <- temp[3]
-  p25[i] <- temp[2]
-  p75[i] <- temp[5]
-  
-  i <- i + 1
+options(scipen = 5, digits = 8)
+# sel <- gend$significance == "significant" & gend$final_code == "no expectation"
+for(sig in unique(gend$significance)){
+  for(code in unique(gend$final_code[!is.na(gend$final_code)])){
+    sel <- gend$significance == sig & gend$final_code == code
+    
+    if(sig == "significant"){
+      temp <- gend$Computed[sel] / .05
+      pstar <- temp[!is.na(temp)]
+      x$CountNSig <- length(pstar)
+      x$Fish <- -2*sum(log(pstar))
+      x$PFish <- pchisq(x$Fish, df = 2 * length(pstar), lower.tail = FALSE)
+    }
+    if(sig == "nonsignificant"){
+      x <- (FisherMethod(x = gend$Computed[sel], id = 1, alpha = 0.05))
+    }
+    
+    cat(sprintf("For %s %s, k = %s, chi2 = %s, p = %s\n", sig, code, x$CountNSig, x$Fish, x$PFish))
+  }
 }
-
-tiff('figures/fig7.tiff', width=1200, height=900)
-plot(x=1985:2013, y=medianN, type='o', col="black",
-     ylab="N", xlab="Year", ylim=c(0,150), cex.lab=1.2, las=1, lwd=1, cex.axis=1.2, xaxs='i')
-lines(x=1985:2013, y=p25, type='o', col='grey')
-lines(x=1985:2013, y=p75, type='o', col='grey')
-dev.off()
 
 
 ##########
@@ -439,24 +426,6 @@ legend(x=2005,y=.1,legend=c("Lowerbound", "Upperbound"),
        box.lwd=0 ,lwd=2, bty='n', y.intersp=1)
 dev.off()
 
-#################
-# Gender effect #
-#################
-setwd("D:/files/phd/toogoodtobefalse/")
-
-genderdat <- read.csv2('datafilegender100.csv')
-# For consistency, select only t F and r values
-genderdat <- genderdat[genderdat$Statistic == 't' | genderdat$Statistic == 'F' | genderdat$Statistic == 'r',]
-gendersample <- genderdat[genderdat$gender == TRUE,]
-
-set.seed(123)
-sampled <- sample(x = unique(gendersample$Source), size = 100, replace = FALSE)
-
-genderrandomsample <- gendersample[gendersample$Source %in% sampled,]
-
-write.csv2(genderrandomsample,
-           'genderrandomselect.csv')
-
 # Discussion
 require(car)
 iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
@@ -480,55 +449,3 @@ zrho <- .5*log((1+rho)/(1-rho))
 round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
 
 
-# 
-# chjh
-# mva 
-# jmw
-# 
-# set1 <- as.dataframe(chjh = chjh[1:90], jmw = jmw)
-# cohen.kappa(rbind(set1$chjh, set1$jmw), w=NULL,n.obs=NULL,alpha=.05)  
-# set1 <- as.dataframe(chjh = chjh[91:180], mva = mva)
-# cohen.kappa(rbind(set1$chjh, set1$mva), w=NULL,n.obs=NULL,alpha=.05) 
-
-# save <- NULL
-# 
-# for(journal in unique(fishDF$journal)){
-#   sel <- fishDF$kRes > 0 & fishDF$journal == journal
-#   
-#   save <- c(save, mean(fishDF$kRes[sel]))
-#   
-# }
-# 
-# cbind(as.character(unique(fishDF$journal)), save)
-
-
-############################
-# Gender effect coded data #
-############################
-gend <- read.csv2('gender/gendercoded cleaned and discussed.csv', sep = ";", dec = ".", header = TRUE)
-
-# 1 = null expected
-# 2 = effect expected
-# 3 = no expectation
-table(gend$significance, gend$final_code)
-
-options(scipen = 5, digits = 8)
-# sel <- gend$significance == "significant" & gend$final_code == "no expectation"
-for(sig in unique(gend$significance)){
-  for(code in unique(gend$final_code[!is.na(gend$final_code)])){
-    sel <- gend$significance == sig & gend$final_code == code
-    
-    if(sig == "significant"){
-      temp <- gend$Computed[sel & gend$Computed <= .05] / .05
-      pstar <- temp[!is.na(temp)]
-      x$CountNSig <- length(pstar)
-      x$Fish <- -2*sum(log(pstar))
-      x$PFish <- pchisq(x$Fish, df = 2 * length(pstar), lower.tail = FALSE)
-    }
-    if(sig == "nonsignificant"){
-      x <- (FisherMethod(x = gend$Computed[sel & gend$Computed > .05], id = 1, alpha = 0.05))
-    }
-        
-    cat(sprintf("For %s %s, k = %s, chi2 = %s, p = %s\n", sig, code, x$CountNSig, x$Fish, x$PFish))
-  }
-}

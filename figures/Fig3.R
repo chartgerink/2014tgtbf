@@ -2,7 +2,7 @@
 # NOT the figures folder.
 setwd(choose.dir())
 
-load('Fig3')
+load('figures/Fig3')
 
 # Effect PDF
 pdf('figures/Fig3.pdf',width=7, height=8)

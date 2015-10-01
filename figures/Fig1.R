@@ -1,4 +1,6 @@
-setwd("D:/Dropbox/projects/2014tgtbf/figures")
+# Set to project folder
+# NOT figures folder
+setwd(choose.dir())
 
 # Figure 1
 N <- 10000
@@ -35,7 +37,7 @@ fquad <- qf(quadpoints, df1=1, df2=97, ncp=(.14/(1-.14))*(100+1+1))
 temp <- 1-pf(fquad, df1=1, df2=97)
 pquadL <- (temp-.05)/(1-.05)
 
-pdf('Fig1.pdf', width=7, height=8)
+pdf('figures/Fig1.pdf', width=7, height=8)
 par(mai=c(1,1,.2,.2))
 plot(density(pquadL, kernel="gaussian", bw="SJ", adjust=1), xlim=c(0.01,1), xaxs='i', lwd=4,
      frame.plot=T, 
