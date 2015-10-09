@@ -1,42 +1,44 @@
-# Set to main folder of project
-# NOT figures folder
+# Choose the directory all files are cloned in
+# NOT the figures folder.
 setwd(choose.dir())
 
-# Read- and prepare data
-dat <- read.csv2("data/statcheck_full_anonymized.csv", stringsAsFactors=F, dec = ",", sep = ";")[-1]
+load('figures/Fig3')
 
-# There are two test statistic indicators that are NA
-# Manually correct these
-dat$Statistic[is.na(dat$Statistic)] <- "F"
+# Effect PDF
+pdf('figures/Fig8.pdf',width=7, height=8)
+par(mai = c(1, 1, 0, .2))
 
-# Computing unadjusted and adjusted effect sizes (OBSERVED)
-dat <- cbind(dat, esComp.statcheck(dat))
-dat$adjESComp[dat$adjESComp < 0] <- 0
-
-# Turning df1 for t and r into 1.
-dat$df1[dat$Statistic == "t" | dat$Statistic == "r"] <- 1
-
-# Select out incorrectly exttracted r values
-dat <- dat[!(dat$Statistic=="r" & dat$Value > 1),]
-
-# Select out irrefutably wrong df reporting
-dat <- dat[!dat$df1 == 0,]
-
-# select out NA computed p-values
-dat <- dat[!is.na(dat$Computed),]
-
-# Selecting only the t, r and F values
-dat <- dat[dat$Statistic == 't' | dat$Statistic == 'r' | dat$Statistic == 'F',]
-
-x <- NULL
-i <- 1
-
-for(y in 1985:2013){
-  x[i] <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y. == y] < .1) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y. == y])
-  i <- i + 1
-}
-
-pdf('figures/Fig8.pdf', width = 7, height = 5)
-par(mfrow = c(1, 1), mai = c(1, 1, .2, .2))
-plot(y = x, x = 1985:2013, type = 'o', ylim = c(0, .6), xlab = "Year", ylab = "Proportion small effects (r<.1)", bty = 'n')
+plot(density(dat$esComp[!is.na(dat$esComp) & dat$years.y. == 1985]),
+     lty = 1,
+     frame.plot = T, 
+     main = "",
+     xlim = c(0, 1),
+     xaxs = "i",
+     xlab = latex2exp("Correlation ($\\eta$)"),
+     ylab = "Density",
+     cex.axis = .8,
+     cex.lab = 1,
+     col = "black", las = 1, bty = 'n')
+lines(density(dat$esComp[!is.na(dat$esComp) & dat$years.y. == 2013]), col = "darkgrey")
+abline(v = c(.1, .25, .4), lty = 2, col = "grey")
+t11 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985] < .1) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985])
+t21 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985] >= .1 & dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985] < .25) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985])
+t31 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985] >= .25 & dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985] < .4) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985])
+t41 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985] >= .4) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 1985])
+t12 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013] < .1) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013])
+t22 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013] >= .1 & dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013] < .25) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013])
+t32 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013] >= .25 & dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013] < .4) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013])
+t42 <- sum(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013] >= .4) / length(dat$esComp[!is.na(dat$esComp) & dat$years.y == 2013])
+text(x = .1 / 2, y = .15, labels = round(t11, 2), cex = 1)
+text(x = .1 / 2, y = .35, labels = round(t12, 2), cex = 1, col = 'darkgrey')
+text(x = ((.25 - .1) / 2) + .1, y = .15, labels = round(t21, 2), cex = 1)
+text(x = ((.25 - .1) / 2) + .1, y = .35, labels = round(t22, 2), cex = 1, col = 'darkgrey')
+text(x = ((.4 - .25) / 2) + .25, y = .15, labels = round(t31, 2), cex = 1)
+text(x = ((.4 - .25) / 2) + .25, y = .35, labels = round(t32, 2), cex = 1, col = 'darkgrey')
+text(x = .45, y = .15, labels = round(t41, 2), cex = 1)
+text(x = .45, y = .35, labels = round(t42, 2), cex = 1, col = 'darkgrey')
+legend(x = .6, y = 1, legend = c("1985", '2013'),
+       cex = 1, lty = c(1, 1),
+       col = c("black", "darkgrey"),
+       box.lwd = 0, lwd = 2, bty = 'n')
 dev.off()

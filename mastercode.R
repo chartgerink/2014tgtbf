@@ -251,7 +251,7 @@ temp <- c(temp,
 final <- rbind(as.character(temp), final)
 final <- as.data.frame(final)
 names(final) <- c('journals', paste0('k', kLen), 'overall', 'countNA', 'amountSig', 'nrpapers')
-write.csv2(final, 'writing/tables/table4.csv', row.names=F)
+write.csv(final, 'writing/tables/table4.csv', row.names=F)
 
 # Overall
 table(fishDF$kRes)
@@ -264,6 +264,20 @@ table(fishDF$kRes[fishDF$journal=="JEPG"])
 table(fishDF$kRes[fishDF$journal=="JPSP"])
 table(fishDF$kRes[fishDF$journal=="PLOS"])
 table(fishDF$kRes[fishDF$journal=="PS"])
+
+
+
+# Median per journal
+x = as.numeric(as.character(final$amountSig)) / (as.numeric(as.character(final$nrpapers)) - as.numeric(as.character(final$countNA)))
+y = c(mean(fishDF$kRes[fishDF$journal=="DP"]),
+median(fishDF$kRes[fishDF$journal=="FP"]),
+median(fishDF$kRes[fishDF$journal=="JAP"]),
+median(fishDF$kRes[fishDF$journal=="JCCP"]),
+median(fishDF$kRes[fishDF$journal=="JEPG"]),
+median(fishDF$kRes[fishDF$journal=="JPSP"]),
+median(fishDF$kRes[fishDF$journal=="PLOS"]),
+median(fishDF$kRes[fishDF$journal=="PS"]))
+cor(x[-1], y)
 
 ############################
 # Gender effect evaluated #
