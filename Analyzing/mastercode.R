@@ -1,7 +1,8 @@
 # Code written by CHJ Hartgerink
 # Checked by: -
 
-setwd(choose.dir())
+# set to run in documents folder
+setwd(normalizePath('~'))
 
 # load packages -----------------------------------------------------------
 
@@ -638,40 +639,3 @@ for(sig in unique(gend$significance)){
 iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
 # Computes the ICC
 iccSS$Sum[2]/(iccSS$Sum[3]+iccSS$Sum[2])
-
-# nonsignificant proportion p/year
-i <- 1
-sig <- NULL
-nsigtemp <- NULL
-kval <- NULL
-
-for(y in 1985:2013){
-  sel <- dat$years.y. == y
-  sig[i] <- sum(dat$Computed[sel] < alpha) / length(dat$Computed[sel])
-  nsigtemp[i] <- sum(dat$Computed[sel] > alpha) / length(dat$Computed[sel])
-  kval[i] <- median(table(dat$Source[sel])) / sum(table(dat$Source[sel]))
-  i <- i + 1
-}
-
-tempjour <- NULL
-negjour <- NULL
-kjour <- NULL
-tempk <- NULL
-for(i in 1:length(sort(unique(dat$journals.jour.[nsig])))){
-  tempjour[i] <- sort(unique(dat$journals.jour.[nsig]))[i]
-  
-  sel <- nsig & dat$journals.jour. == sort(unique(dat$journals.jour.[nsig]))[i]
-  
-  # Number of papers containing negative results
-  negjour[i] <- length(unique(dat$Source[sel]))
-  
-  # Minimum median k
-  for(j in 1:negjour[i]){
-    selJ <- nsig & dat$Source==unique(dat$Source[sel])[j]
-    tempk[j] <- length(dat$Computed[selJ])
-    print(j)
-  }
-  kjour[i] <- median(tempk)
-  print(i)
-}
-write.csv2(cbind(tempjour, negjour, kjour), 'archive/checks.csv')
