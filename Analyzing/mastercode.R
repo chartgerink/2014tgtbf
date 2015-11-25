@@ -15,6 +15,8 @@ if(!require(ggplot2)){install.packages('ggplot2')}
 library(ggplot2)
 if(!require(stringr)){install.packages('stringr')}
 libary(stringr)
+if(!require(car)){install.packages('car')}
+libary(car)
 
 # download and load dependent files ---------------------------------------
 
@@ -40,6 +42,10 @@ dat <- read.csv2("statcheck_full_anonymized.csv",
 # the gender related results (ALL)
 GET('https://raw.githubusercontent.com/chartgerink/2014tgtbf/master/data/datafilegender500_post.csv',
     write_disk('datafilegender500_post.csv', overwrite = TRUE))
+# the coded gender results
+GET('https://raw.githubusercontent.com/chartgerink/2014tgtbf/master/data/gendercoded%20cleaned%20and%20discussed.csv',
+    write_disk('gendercoded cleaned and discussed.csv', overwrite = TRUE))
+
 
 
 # data cleaning -----------------------------------------------------------
@@ -385,6 +391,22 @@ t(get(x = names[3]))
 # N = 119
 t(get(x = names[1]))
 
+# Table 3 power computations
+ser <- 1/sqrt(c(33, 62, 119)-3)
+rho <- .1
+zcv <- 1.282
+rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
+zrcv <- .5*log((1+rcv)/(1-rcv))
+zrho <- .5*log((1+rho)/(1-rho))
+round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
+
+rho <- .25
+rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
+zrcv <- .5*log((1+rcv)/(1-rcv))
+zrho <- .5*log((1+rho)/(1-rho))
+round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
+
+
 # Agresti-Coull CI
 .1 - qnorm(.95, 0, 1) * (sqrt((1/10000) * .1 * .9))
 .1 + qnorm(.95, 0, 1) * (sqrt((1/10000) * .1 * .9))
@@ -582,7 +604,7 @@ dev.off()
 
 # gender effect evaluated -------------------------------------------------
 
-gend <- read.csv2('gender/gendercoded cleaned and discussed.csv', sep = ";", dec = ".", header = TRUE)
+gend <- read.csv2('gendercoded cleaned and discussed.csv', sep = ";", dec = ".", header = TRUE)
 
 # 1 = null expected
 # 2 = effect expected
@@ -609,6 +631,13 @@ for(sig in unique(gend$significance)){
     cat(sprintf("For %s %s, k = %s, chi2 = %s, p = %s\n", sig, code, x$CountNSig, x$Fish, x$PFish))
   }
 }
+
+
+# discussion --------------------------------------------------------------
+
+iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
+# Computes the ICC
+iccSS$Sum[2]/(iccSS$Sum[3]+iccSS$Sum[2])
 
 # nonsignificant proportion p/year
 i <- 1
@@ -646,195 +675,3 @@ for(i in 1:length(sort(unique(dat$journals.jour.[nsig])))){
   print(i)
 }
 write.csv2(cbind(tempjour, negjour, kjour), 'archive/checks.csv')
-
-
-
-###########
-# Results #
-########### 
-
-
-
-############################
-# Gender effect evaluated #
-############################
-gend <- read.csv2('gender/gendercoded cleaned and discussed.csv', sep = ";", dec = ".", header = TRUE)
-
-# 1 = null expected
-# 2 = effect expected
-# 3 = no expectation
-table(gend$significance, gend$final_code)
-
-options(scipen = 5, digits = 8)
-# sel <- gend$significance == "significant" & gend$final_code == "no expectation"
-for(sig in unique(gend$significance)){
-  for(code in unique(gend$final_code[!is.na(gend$final_code)])){
-    sel <- gend$significance == sig & gend$final_code == code
-    
-    if(sig == "significant"){
-      temp <- gend$Computed[sel] / .05
-      pstar <- temp[!is.na(temp)]
-      x$CountNSig <- length(pstar)
-      x$Fish <- -2*sum(log(pstar))
-      x$PFish <- pchisq(x$Fish, df = 2 * length(pstar), lower.tail = FALSE)
-    }
-    if(sig == "nonsignificant"){
-      x <- (FisherMethod(x = gend$Computed[sel], id = 1, alpha = 0.05))
-    }
-    
-    cat(sprintf("For %s %s, k = %s, chi2 = %s, p = %s\n", sig, code, x$CountNSig, x$Fish, x$PFish))
-  }
-}
-
-
-##########
-# Step 6 #
-# Relation k and significant Fisher tests
-##########
-# Select out all zero-k papers
-fishDF <- fishDF[!fishDF$kRes == 0,]
-k <- sort(unique(fishDF$kRes))
-curveES <- seq(0, 1.5, .01)
-zcv <- qnorm(.9, 0, 1)
-
-fishDF$sig <- fishDF$FisherP
-fishDF$sig[fishDF$sig < alphaF] <- 1
-fishDF$sig[fishDF$sig >= alphaF & !fishDF$sig == 1] <- 0
-
-# Null model
-nullmod <- lm(datFit$yi ~ 1)
-
-# Optimal curve model searching
-# [datFit$kRes <= 20]
-r2fit = NULL
-ktemp <- seq(1:max(k))
-datFit <- data.frame(yi=fishDF$sig, kRes=fishDF$kRes, jour=fishDF$journal)
-xi <- list(NULL)
-for(i in 1:length(curveES)){
-  xi[[i]] <- (1 - pnorm(zcv/sqrt(datFit$kRes), curveES[i], 1 / sqrt(datFit$kRes)))
-  datFit <- cbind(datFit, xi[[i]])
-  r2fit[i] <- summary(lm(datFit$yi ~ 1 + datFit[,3+i]))$r.squared
-}
-# Optimal curve fit
-xi <- (1 - pnorm(zcv/sqrt(datFit$kRes), curveES[which(r2fit == max(r2fit))], 1 / sqrt(datFit$kRes)))
-curvemod <- lm(datFit$yi ~ 1 + xi)
-curveES[which(r2fit == max(r2fit))]
-
-
-# Saturated model
-satur <- summary(lm(datFit$yi ~ 0 + as.factor(datFit$kRes)))
-
-tiff('../Writing/Figures/fig8.tiff', width=717, height=654)
-par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
-plot(x=(datFit$kRes), y=datFit$yi, col= 'white',
-     xlab="Ln(k)", ylab="Estimated nr. of significant Fisher tests", xaxs="i",
-     cex.axis=1.2,
-     cex.lab=1.2,
-     las=1, lwd=1)
-curve((1 - pnorm(zcv/sqrt(x), curveES[which(r2fit == max(r2fit))], 1 / sqrt(x))), from=1, to=max(datFit$kRes),
-      add=T)
-lines(x=(sort(unique(datFit$kRes))), y=satur$coefficients[,1],col='black', lty=2)
-
-for(z in 1:length(unique(datFit$jour))){
-  points(x=kMean[z], y=propMean[z], col="black", pch=z)
-}
-
-abline(h=nullmod$coefficients[1], col="grey", lty=1)
-legend(x=3,y=.25,legend=c(as.character(sort(unique(datFit$jour))), "Null, R2=0",
-                          paste0("Curve, R2=", round(summary(curvemod)$r.squared,3)),
-                          paste0("Saturated, R2=", round(satur$r.squared,3))),
-       cex=.8, pch=c(1:8, NA, NA, NA), lty=c(rep(NA, 8), 1, 1, 2), 
-       col=c(rep("black",8),"grey", rep("black", 2)),
-       #        col = c("black", rep("blue", 5), rep("red", 3))
-       box.lwd=0 ,lwd=1, bty='n', y.intersp=1)
-dev.off()
-
-# Observed true positive
-# Overall
-selK <- sort(unique(fishDF$kRes))
-obstruesig <- NULL
-obspow <- NULL
-obssig <- NULL
-obstruesigSat <- NULL
-i <- 1
-for(k in as.numeric(selK)){
-  obspow[i] <- (1 - pnorm(zcv/sqrt(k), curveES[which(r2fit == max(r2fit))], 1/sqrt(k)))
-  obssig[i] <- sum(fishDF$FisherP[!is.na(fishDF$FisherP) & fishDF$kRes == k] < alphaF)
-  obstruesig[i] <- (obssig[i]*obspow[i])
-  obstruesigSat[i] <- obssig[i]*satur$coefficients[i]
-  i <- i + 1
-}
-sum(obssig)*sum(obstruesig)/length(fishDF$FisherP)
-sum(obssig)*sum(obstruesigSat)/length(fishDF$FisherP)
-sum(obssig)
-
-sum(obstruesig)/length(fishDF$FisherP)
-sum(obstruesigSat)/length(fishDF$FisherP)
-
-j <- 1
-low <- NULL
-high <- NULL
-for(y in 1985:2013){
-  if(sort(unique(fishDF$kRes[fishDF$year == y]))[1] == 0){
-    selK <- sort(unique(fishDF$kRes[fishDF$year == y]))[-1]
-  }else{
-    selK <- sort(unique(fishDF$kRes[fishDF$year == y]))}
-  obstruesig <- NULL
-  obspow <- NULL
-  obssig <- NULL
-  obstruesigSat <- NULL
-  i <- 1
-  for(k in as.numeric(selK)){
-    obspow[i] <- (1 - pnorm(zcv/sqrt(k), curveES[which(r2fit == max(r2fit))], 1/sqrt(k)))
-    obssig[i] <- sum(fishDF$FisherP[!is.na(fishDF$FisherP) & fishDF$kRes == k & fishDF$year == y] < alphaF)
-    obstruesig[i] <- (obssig[i]*obspow[i])
-    obstruesigSat[i] <- obssig[i]*satur$coefficients[i]
-    i <- i + 1
-  }
-  low[j] <- sum(obstruesig)/length(fishDF$FisherP[fishDF$year == y])
-  high[j] <-sum(obstruesigSat)/length(fishDF$FisherP[fishDF$year == y])
-  
-  j <- j + 1
-}
-year <- 1985:2013
-temp <- cbind(year, low, high)
-temp <- as.data.frame(temp)
-names(temp) <- c("Year", 'Low [Curve]', 'High [Saturated]')
-
-write.csv2(temp, '../Writing/Tables/table6notused.csv', row.names=F)
-
-tiff('../Writing/Figures/fig9.tiff', width=650, height=576)
-par(mfrow=c(1,1), mai=c(1.2,1.2,.2,.2))
-plot(x=1985:2013, y=low, col= 'black',
-     xlab="Year", ylab="Estimated false negative rate", xaxs="i",
-     cex.axis=1,
-     cex.lab=1,
-     las=1, lwd=1,type='o',ylim=c(0,1))
-lines(x=1985:2013, y=high, ylim=c(0,1), type='o', lty=2)
-legend(x=2005,y=.1,legend=c("Lowerbound", "Upperbound"),
-       cex=.8, lty=c(1,2), 
-       box.lwd=0 ,lwd=2, bty='n', y.intersp=1)
-dev.off()
-
-# Discussion
-require(car)
-iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
-# Computes the ICC
-iccSS$Sum[2]/(iccSS$Sum[3]+iccSS$Sum[2])
-
-
-# Table 3 power computations
-ser <- 1/sqrt(c(33, 62, 119)-3)
-rho <- .1
-zcv <- 1.282
-rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
-zrcv <- .5*log((1+rcv)/(1-rcv))
-zrho <- .5*log((1+rho)/(1-rho))
-round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
-
-rho <- .25
-rcv <- (exp(2*(zcv*ser))-1)/(exp(2*(zcv*ser))+1)
-zrcv <- .5*log((1+rcv)/(1-rcv))
-zrho <- .5*log((1+rho)/(1-rho))
-round(1-pnorm(zrcv, mean=zrho, sd=ser),4)
-
