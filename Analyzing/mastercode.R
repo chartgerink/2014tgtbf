@@ -15,9 +15,9 @@ library(plyr)
 if(!require(ggplot2)){install.packages('ggplot2')}
 library(ggplot2)
 if(!require(stringr)){install.packages('stringr')}
-libary(stringr)
+library(stringr)
 if(!require(car)){install.packages('car')}
-libary(car)
+library(car)
 
 # download and load dependent files ---------------------------------------
 
