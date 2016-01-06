@@ -3,6 +3,7 @@
 setwd(choose.dir())
 
 simNullEs <- read.table('archive/simNullEs.csv', sep = ";", dec = ".")
+
 temp <- ks.test(simNullEs$esComp,
                 dat$esComp[nsig],
                 alternative="greater")
@@ -19,7 +20,7 @@ plot(ecdf(na.omit(sqrt(simNullEs$esComp))),
      xlim = c(0, 1),
      xaxs = "i",
      yaxs = "i",
-     xlab = latex2exp("Correlation ($\\eta$)"),
+     xlab = latex2exp("Correlation ($|\\eta|$)"),
      ylab = "Cumulative density",
      cex.axis=.8,
      cex.lab=1,
@@ -57,7 +58,7 @@ plot(ecdf(na.omit(sqrt(simNullEs$adjESComp))),
      xlim = c(0, 1),
      xaxs = "i",
      yaxs = "i",
-     xlab = latex2exp("Correlation ($\\eta$)"),
+     xlab = latex2exp("Correlation ($|\\eta|$)"),
      ylab = "Cumulative density",
      cex.axis = .8,
      cex.lab = 1,
