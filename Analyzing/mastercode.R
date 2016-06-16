@@ -1,9 +1,6 @@
 # Code written by CHJ Hartgerink
 # Checked by: -
 
-# set to run in documents folder
-setwd(normalizePath('~'))
-
 # load packages -----------------------------------------------------------
 
 if(!require(httr)){install.packages('httr')}
@@ -22,20 +19,13 @@ library(car)
 # download and load dependent files ---------------------------------------
 
 # custom functions
-# individual files available in `functions/`
-GET('https://github.com/chartgerink/2014tgtbf/raw/master/functions/functions.R',
-    write_disk('functions.R', overwrite = TRUE))
-source("functions.R")
-
-# simulation study code
-GET('https://github.com/chartgerink/2014tgtbf/raw/master/Analyzing/simCode.R',
-    write_disk('simCode.R', overwrite = TRUE))
+source("functions/functions.R")
 
 # data
 # literally gets the data from the Nuijten et al paper
 GET('https://osf.io/gdr4q/?action=download',
-    write_disk('statcheck_full_anonymized.csv', overwrite = TRUE))
-dat <- read.csv2("statcheck_full_anonymized.csv",
+    write_disk('data/statcheck_full_anonymized.csv', overwrite = TRUE))
+dat <- read.csv2("data/statcheck_full_anonymized.csv",
                  stringsAsFactors = F,
                  dec = ",",
                  sep = ";")[-1]
@@ -534,6 +524,12 @@ fishDF$logicalP <- ifelse(fishDF$FisherP < .1, 1, 0)
 fisherYear <- ddply(fishDF, .(year), summarise, propYear=mean(logicalP, na.rm=TRUE))
 
 knsYear <- ddply(fishDF, .(year), summarise, kYear=mean(kRes, na.rm=TRUE))
+pmeanYear <- ddply(dat[dat$Reported.Comparison == '=' & dat$Reported.P.Value > .05, ],
+                   .(years.y.), summarise, pYear=mean(Reported.P.Value, na.rm=TRUE))
+
+esYear <- ddply(dat[dat$Reported.Comparison == '=' & dat$Reported.P.Value > .05, ],
+                   .(years.y.), summarise, esYear=mean(esComp, na.rm=TRUE))
+
 
 mydf <- data.frame(x = fisherYear$year,
                    y = fisherYear$propYear,
