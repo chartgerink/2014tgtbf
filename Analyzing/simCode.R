@@ -53,18 +53,15 @@ for(n in 1:length(N)){
     }
     power <- rbind(power, powe)
   }
-  filepath <- paste0('N_',
-                     N[n],
-                     '.csv')
-  write.csv2(power,
-             file=filepath)
+  filepath <- sprintf('%sdata/N_%s.csv', 
+                      run,
+                      N[n])
+  power <- as.data.frame(power)
+  names(power) <- ES
+  write.csv(cbind(P, power),
+            file=filepath)
   ### General comments
   ### Comment 1
-  ### Could not easily get the row and column names to match
-  ### the number of results (rows) and the effect sizes (columns)
-  ### Hence, adjusted this per file manually
-  
-  ### Comment 2
   ### Noncentral distribution estimation yields the possibility
   ### of null beta values, which yields a power of null as all
   ### p0 values are 1. This is a limit due to the precision of
