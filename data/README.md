@@ -1,1 +1,1 @@
-The `statcheck` data are automatically downloaded from Nuijten et al. 2015 in the analysis script and not saved here. These can be found [here](https://osf.io/gdr4q/).
+All files in this folder can be removed. This will redownload the data needed and run the necessary scripts when the Sweave document is generated.

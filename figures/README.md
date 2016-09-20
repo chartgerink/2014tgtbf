@@ -1,0 +1,1 @@
+All files in this folder can be removed. This will regenerate the figures BUT do not remove `appendix_a.png`, this is not generated with code.
