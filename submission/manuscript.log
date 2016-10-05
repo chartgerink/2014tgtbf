@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2016.6.18)  20 SEP 2016 14:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2016.6.18)  4 OCT 2016 21:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -820,210 +820,225 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 35.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 35.
- [1
-
-{/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 46.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 46.
- [2] [3] [4]
-LaTeX Font Info:    Try loading font information for T1+aett on input line 101.
-
+LaTeX Font Info:    Try loading font information for T1+aett on input line 43.
 
 (/usr/share/texlive/texmf-dist/tex/latex/ae/t1aett.fd
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
-) [5] [6]
-Underfull \hbox (badness 2894) in paragraph at lines 161--161
+)
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 43.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 43.
+ [1
+
+{/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4]
+ [5] [6]
+Underfull \hbox (badness 2894) in paragraph at lines 164--164
 \T1/aer/m/n/10 sults per
  []
 
 
-Overfull \hbox (3.11028pt too wide) in paragraph at lines 161--161
+Overfull \hbox (3.11028pt too wide) in paragraph at lines 164--164
 []\T1/aer/m/n/10 Significant
  []
 
 
-Overfull \hbox (5.32384pt too wide) in paragraph at lines 161--161
+Overfull \hbox (5.32384pt too wide) in paragraph at lines 164--164
 []\T1/aer/m/n/10 Nonsignificant
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 163--163
+Underfull \hbox (badness 10000) in paragraph at lines 166--166
 []\T1/aer/m/n/10 Developmental
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 163--163
+Underfull \hbox (badness 10000) in paragraph at lines 166--166
 []\T1/aer/m/n/10 24,584
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 163--163
+Underfull \hbox (badness 10000) in paragraph at lines 166--166
 []\T1/aer/m/n/10 6,336
  []
 
 
-Underfull \hbox (badness 4981) in paragraph at lines 164--164
+Underfull \hbox (badness 4981) in paragraph at lines 167--167
 []\T1/aer/m/n/10 Frontiers in Psy-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 164--164
+Underfull \hbox (badness 10000) in paragraph at lines 167--167
 []\T1/aer/m/n/10 6,595
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 164--164
+Underfull \hbox (badness 10000) in paragraph at lines 167--167
 []\T1/aer/m/n/10 2,577
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 165--165
+Underfull \hbox (badness 10000) in paragraph at lines 168--168
 []\T1/aer/m/n/10 8,455
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 165--165
+Underfull \hbox (badness 10000) in paragraph at lines 168--168
 []\T1/aer/m/n/10 2,785
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
 \T1/aer/m/n/10 ing and Clin-i-cal
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
 []\T1/aer/m/n/10 15,672
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
+Underfull \hbox (badness 10000) in paragraph at lines 169--169
 []\T1/aer/m/n/10 4,411
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 167--167
+Underfull \hbox (badness 10000) in paragraph at lines 170--170
 []\T1/aer/m/n/10 12,706
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 167--167
+Underfull \hbox (badness 10000) in paragraph at lines 170--170
 []\T1/aer/m/n/10 4,577
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 168--168
+Underfull \hbox (badness 10000) in paragraph at lines 171--171
 \T1/aer/m/n/10 al-ity and So-cial
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 168--168
+Underfull \hbox (badness 10000) in paragraph at lines 171--171
 []\T1/aer/m/n/10 69,836
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 168--168
+Underfull \hbox (badness 10000) in paragraph at lines 171--171
 []\T1/aer/m/n/10 21,955
  []
 
 
-Underfull \hbox (badness 2818) in paragraph at lines 169--169
+Underfull \hbox (badness 2818) in paragraph at lines 172--172
 []\T1/aer/m/n/10 Public Li-brary of
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 169--169
+Underfull \hbox (badness 10000) in paragraph at lines 172--172
 []\T1/aer/m/n/10 19,696
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 169--169
+Underfull \hbox (badness 10000) in paragraph at lines 172--172
 []\T1/aer/m/n/10 8,865
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 170--170
+Underfull \hbox (badness 10000) in paragraph at lines 173--173
 []\T1/aer/m/n/10 Psychological
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 170--170
+Underfull \hbox (badness 10000) in paragraph at lines 173--173
 []\T1/aer/m/n/10 10,943
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 170--170
+Underfull \hbox (badness 10000) in paragraph at lines 173--173
 []\T1/aer/m/n/10 3,089
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 172--172
+Underfull \hbox (badness 10000) in paragraph at lines 175--175
 []\T1/aer/m/it/10 168,487
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 172--172
+Underfull \hbox (badness 10000) in paragraph at lines 175--175
 []\T1/aer/m/it/10 54,595
  []
 
-[7] <../figures/Fig1.pdf, id=143, 794.97pt x 505.89pt>
+[7] [8] <../figures/Fig1.pdf, id=155, 794.97pt x 505.89pt>
 File: ../figures/Fig1.pdf Graphic file (type pdf)
 
 <use ../figures/Fig1.pdf>
-Package pdftex.def Info: ../figures/Fig1.pdf used on input line 192.
+Package pdftex.def Info: ../figures/Fig1.pdf used on input line 195.
 (pdftex.def)             Requested size: 276.00105pt x 175.63608pt.
- <../figures/Fig2.pdf, id=145, 794.97pt x 505.89pt>
+ <../figures/Fig2.pdf, id=157, 794.97pt x 505.89pt>
 File: ../figures/Fig2.pdf Graphic file (type pdf)
 
 <use ../figures/Fig2.pdf>
-Package pdftex.def Info: ../figures/Fig2.pdf used on input line 202.
+Package pdftex.def Info: ../figures/Fig2.pdf used on input line 205.
 (pdftex.def)             Requested size: 276.00105pt x 175.63608pt.
- [8] [9 <../figures/Fig1.pdf> <../figures/Fig2.pdf>]
+ [9 <../figures/Fig1.pdf>]
 <../figures/Fig3.pdf, id=179, 794.97pt x 505.89pt>
 File: ../figures/Fig3.pdf Graphic file (type pdf)
  <use ../figures/Fig3.pdf>
-Package pdftex.def Info: ../figures/Fig3.pdf used on input line 215.
+Package pdftex.def Info: ../figures/Fig3.pdf used on input line 218.
 (pdftex.def)             Requested size: 345.0pt x 219.55089pt.
 
-[10 <../figures/Fig3.pdf>] [11]
-<../figures/Fig4.pdf, id=206, 505.89pt x 361.35pt>
+[10 <../figures/Fig2.pdf>] [11 <../figures/Fig3.pdf>] [12]
+<../figures/Fig4.pdf, id=217, 505.89pt x 361.35pt>
 File: ../figures/Fig4.pdf Graphic file (type pdf)
  <use ../figures/Fig4.pdf>
-Package pdftex.def Info: ../figures/Fig4.pdf used on input line 273.
+Package pdftex.def Info: ../figures/Fig4.pdf used on input line 276.
 (pdftex.def)             Requested size: 276.00105pt x 197.14412pt.
 
-<../figures/Fig5.pdf, id=207, 505.89pt x 433.62pt>
+<../figures/Fig5.pdf, id=218, 505.89pt x 433.62pt>
 File: ../figures/Fig5.pdf Graphic file (type pdf)
  <use ../figures/Fig5.pdf>
-Package pdftex.def Info: ../figures/Fig5.pdf used on input line 281.
+Package pdftex.def Info: ../figures/Fig5.pdf used on input line 284.
 (pdftex.def)             Requested size: 276.00105pt x 236.57295pt.
 
-[12] [13 <../figures/Fig4.pdf>] [14 <../figures/Fig5.pdf>] [15]
-<../figures/Fig6.pdf, id=275, 505.89pt x 361.35pt>
+[13] [14 <../figures/Fig4.pdf>] [15 <../figures/Fig5.pdf>] [16]
+<../figures/Fig6.pdf, id=286, 505.89pt x 361.35pt>
 File: ../figures/Fig6.pdf Graphic file (type pdf)
  <use ../figures/Fig6.pdf>
-Package pdftex.def Info: ../figures/Fig6.pdf used on input line 330.
+Package pdftex.def Info: ../figures/Fig6.pdf used on input line 333.
 (pdftex.def)             Requested size: 276.00105pt x 197.14412pt.
 
-[16 <../figures/Fig6.pdf>] [17] [18] [19] [20] [21]
-<../figures/appendix_a.png, id=369, 505.89pt x 361.35pt>
+[17 <../figures/Fig6.pdf>] [18] [19] [20] [21]
+<../figures/appendix_a.png, id=372, 505.89pt x 361.35pt>
 File: ../figures/appendix_a.png Graphic file (type png)
 
 <use ../figures/appendix_a.png>
-Package pdftex.def Info: ../figures/appendix_a.png used on input line 402.
+Package pdftex.def Info: ../figures/appendix_a.png used on input line 404.
 (pdftex.def)             Requested size: 258.75pt x 184.8264pt.
- [22 <../figures/appendix_a.png>]
-(./manuscript.bbl [23] [24] [25] [26] [27]
-Underfull \hbox (badness 10000) in paragraph at lines 364--370
+ [22] [23 <../figures/appendix_a.png>]
+(./manuscript.bbl [24] [25]
+Underfull \hbox (badness 10000) in paragraph at lines 194--199
+[]\T1/aer/m/n/10 Ioannidis JPA.  Why most pub-lished re-search find-ings are
+ []
+
+
+Underfull \hbox (badness 1817) in paragraph at lines 194--199
+\T1/aer/m/n/10 false.  PLoS medicine. 2005 30 Aug;2(8):e124.  Avail-able from:
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 194--199
+[]$\T1/aett/m/n/10 http : / / journals . plos . org / plosmedicine / article / 
+asset ? id = 10 .
+ []
+
+[26] [27] [28]
+Underfull \hbox (badness 10000) in paragraph at lines 384--390
 \T1/aett/m/n/10 lr = &id = 5cLeAQAAQBAJ & oi = fnd & pg = PA221 & dq = Steiger 
 + %26 + Fouladi ,[]
  []
 
 )
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 437.
- [28]
+ [29]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 437.
  (./manuscript.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 437.
@@ -1033,13 +1048,13 @@ Package rerunfilecheck Info: File `manuscript.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 437.
  ) 
 Here is how much of TeX's memory you used:
- 8902 strings out of 493316
- 128594 string characters out of 6140413
- 266032 words of memory out of 5000000
- 12006 multiletter control sequences out of 15000+600000
+ 8911 strings out of 493316
+ 128728 string characters out of 6140413
+ 267295 words of memory out of 5000000
+ 12011 multiletter control sequences out of 15000+600000
  41738 words of font info for 81 fonts, out of 8000000 for 9000
  953 hyphenation exceptions out of 8191
- 42i,17n,36p,1644b,455s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,17n,36p,1751b,455s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texli
@@ -1057,10 +1072,10 @@ xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/
 texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-d
 ist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fo
 nts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on manuscript.pdf (28 pages, 980284 bytes).
+Output written on manuscript.pdf (29 pages, 981679 bytes).
 PDF statistics:
- 589 PDF objects out of 1000 (max. 8388607)
- 520 compressed objects within 6 object streams
- 133 named destinations out of 1000 (max. 500000)
+ 603 PDF objects out of 1000 (max. 8388607)
+ 533 compressed objects within 6 object streams
+ 137 named destinations out of 1000 (max. 500000)
  40 words of extra memory for PDF output out of 10000 (max. 10000000)
 

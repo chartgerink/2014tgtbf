@@ -5,6 +5,12 @@ Popper K.
 \newblock {The logic of scientific discovery}.
 \newblock London, United Kingdom: Routledge; 1959.
 
+\bibitem{meehl1978theoretical}
+Meehl PE.
+\newblock Theoretical risks and tabular asterisks: Sir Karl, Sir Ronald, and
+  the slow progress of soft psychology.
+\newblock Journal of consulting and clinical Psychology. 1978;46(4):806.
+
 \bibitem{American_Psychological_Association2010-qe}
 {American Psychological Association}.
 \newblock {Publication manual of the American Psychological Association}.
@@ -184,6 +190,13 @@ Fiedler K, Kutzner F, Krueger JI.
   for Psychological Science. 2012 Nov;7(6):661--669.
 \newblock Available from: \url{http://dx.doi.org/10.1177/1745691612462587}.
 
+\bibitem{Ioannidis2005-am}
+Ioannidis JPA.
+\newblock {Why most published research findings are false}.
+\newblock PLoS medicine. 2005 30~Aug;2(8):e124.
+\newblock Available from:
+  \url{http://journals.plos.org/plosmedicine/article/asset?id=10.1371/journal.pmed.0020124.PDF}.
+
 \bibitem{Fisher1925-jl}
 Fisher RA.
 \newblock {Statistical methods for research workers}.
@@ -359,6 +372,13 @@ Nuijten MB, van Assen MALM, Veldkamp CLS, Wicherts JM.
 \newblock Review of general psychology: journal of Division 1, of the American
   Psychological Association. 2015;Available from:
   \url{http://doi.apa.org/getdoi.cfm?doi=10.1037/gpr0000034}.
+
+\bibitem{Hoekstra2006}
+Hoekstra R, Finch S, Kiers HAL, Johnson A.
+\newblock Probability as certainty: Dichotomous thinking and the misuse ofp
+  values.
+\newblock Psychonomic Bulletin {\&} Review. 2006;13(6):1033--1037.
+\newblock Available from: \url{http://dx.doi.org/10.3758/BF03213921}.
 
 \bibitem{Steiger1997-qq}
 Steiger JH, Fouladi RT.
