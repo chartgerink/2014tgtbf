@@ -5,3 +5,8 @@
 # Example code in package build process
 *-Ex.R
 .Rproj.user
+
+submission/manuscript.bbl
+submission/manuscript.log
+submission/manuscript.synctex.gz
+submission/manuscript-*
