@@ -320,6 +320,9 @@ for(j in 1:length(journals)){
     )
   )
 }
+
+iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
+
 @
 
 % Insert table 3
@@ -943,6 +946,10 @@ Prior to analyzing these 178 $p$-values for evidential value with the Fisher tes
 
 gend <- read.csv2(sprintf('%sdata/gendercoded cleaned and discussed.csv', run), sep = ";", dec = ".", header = TRUE)
 
+gend <- gend[!is.na(gend$final_code),]
+sum(gend$Computed > .05 & gend$significance == 'significant')
+gend <- gend[!(gend$Computed > .05 & gend$significance == 'significant'),]
+
 # 1 = null expected
 # 2 = effect expected
 # 3 = no expectation
@@ -971,16 +978,15 @@ for(sig in unique(gend$significance)){
 
 if(!file.exists(sprintf('%sfigures/Fig6.pdf', run)))
 {
-
     ggplot(gend, aes(x = Computed, fill = significance)) + 
-    geom_density(alpha = .3) + 
+    geom_density(alpha = .3, trim = TRUE) + 
     xlab(TeX("$P$-value")) + 
     ylab("Density")
   ggsave(filename = sprintf('%sfigures/Fig6.pdf', run), plot = last_plot(), width = 7, height = 5)
   }
 @
 
-The coding of the 178 results indicated that results rarely specify whether these are in line with the hypothesized effect (see Table \ref{tab:tab5}). For the 178 results, only 15 clearly stated whether their results were as expected, whereas the remaining 163 did not. Illustrative of the lack of clarity in expectations is the following quote: "\textit{As predicted, there was little gender difference [...] p < .06.}" As a result, the conditions significant-$H_0$ expected, nonsignificant-$H_0$ expected, and nonsignificant-$H_1$ expected contained too few results for meaningful investigation of evidential value (i.e., with sufficient statistical power).
+The coding of the 178 results indicated that results rarely specify whether these are in line with the hypothesized effect (see Table \ref{tab:tab5}). For the 178 results, only 15 clearly stated whether their results were as expected, whereas the remaining 163 did not. Illustrative of the lack of clarity in expectations is the following quote: "\textit{As predicted, there was little gender difference [...] p < .06.}" There were two results that were presented as significant but contained $p$-values larger than .05; these two were dropped (i.e., 176 results were analyzed). As a result, the conditions significant-$H_0$ expected, nonsignificant-$H_0$ expected, and nonsignificant-$H_1$ expected contained too few results for meaningful investigation of evidential value (i.e., with sufficient statistical power).
 
 \begin{table}[htbp]
 \caption{Number of gender results coded per condition in a 2 (significance: significant or nonsignificant) by 3 (expectation: $H_0$ expected, $H_1$ expected, or no expectation) design. Cells printed in bold had sufficient results to inspect for evidential value.}
@@ -990,7 +996,7 @@ The coding of the 178 results indicated that results rarely specify whether thes
 \begin{tabular}{lrrr}
 & $H_0$ expected & $H_1$ expected & No expectation \\
 \hline
-Significant    & 0           & \textbf{12}          & \textbf{76}             \\
+Significant    & 0           & \textbf{11}          & \textbf{75}             \\
 Nonsignificant & 2           & 1           & \textbf{87}     \\
 \hline
 \end{tabular}
@@ -1007,7 +1013,7 @@ Nonsignificant & 2           & 1           & \textbf{87}     \\
 \end{figure}
 
 % these results are available in the code chunk above
-Figure \ref{fig:fig6} presents the distributions of both transformed significant and non-significant $p$-values. For significant results, applying the Fisher test to the $p$-values showed evidential value for a gender effect both when an effect was expected ($\chi^2(24)=358.725$, $p<.001$) and when no expectation was presented at all ($\chi^2(152)=1093.884$, $p<.001$). Similarly, applying the Fisher test to nonsignificant gender results without stated expectation yielded evidence of at least one false negative ($\chi^2(174)=324.374$, $p<.001$). Unfortunately, we could not examine whether evidential value of gender effects is dependent on the hypothesis/expectation of the researcher, because these effects are most frequently reported without stated expectations. 
+Figure \ref{fig:fig6} presents the distributions of both transformed significant and non-significant $p$-values. For significant results, applying the Fisher test to the $p$-values showed evidential value for a gender effect both when an effect was expected ($\chi^2(22)=358.904$, $p<.001$) and when no expectation was presented at all ($\chi^2(15)=1094.911$, $p<.001$). Similarly, applying the Fisher test to nonsignificant gender results without stated expectation yielded evidence of at least one false negative ($\chi^2(174)=324.374$, $p<.001$). Unfortunately, we could not examine whether evidential value of gender effects is dependent on the hypothesis/expectation of the researcher, because these effects are most frequently reported without stated expectations. 
 
 \subsection*{Discussion}
 
