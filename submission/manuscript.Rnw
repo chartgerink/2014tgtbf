@@ -324,6 +324,10 @@ for(j in 1:length(journals)){
 
 iccSS <- Anova(lm(dat$Computed[nsig] ~ dat$Source[nsig]), type="III")
 
+tmp <- log((dat$Computed[nsig] - .05) / (1 - .05)) / ((dat$Computed[nsig] - .05) / (1 - .05))
+
+iccSStmp <- Anova(lm(tmp ~ dat$Source[nsig]), type="III")
+
 @
 
 % Insert table 3
@@ -678,6 +682,8 @@ Because effect sizes and their distribution typically overestimate population ef
 if(!file.exists(sprintf('%sdata/fishRes', run)))
 {
   fishRes <- FisherMethod(dat$Computed, as.character(dat$Source))
+  # Uncomment below to rerun with alpha = .10
+  # fishRes <- FisherMethod(dat$Computed, as.character(dat$Source), alpha = .10)
   save(fishRes, file = sprintf('%sdata/fishRes', run))
 } else
 {
