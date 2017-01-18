@@ -40,7 +40,7 @@ Due to its probabilistic nature, Null Hypothesis Significance Testing (NHST) is 
 \keywords{NHST, reproducibility project, nonsignificant, power, underpowered, effect size, Fisher test, gender}
 
 \section*{Author note}
-All research files, data, and analyses scripts are preserved and made available for download at \url{http://doi.org/10.5281/zenodo.154514}.
+All research files, data, and analyses scripts are preserved and made available for download at \url{http://doi.org/10.5281/zenodo.250492}.
 \newpage
 
 <<Dependencies, echo=FALSE, print=FALSE>>=
